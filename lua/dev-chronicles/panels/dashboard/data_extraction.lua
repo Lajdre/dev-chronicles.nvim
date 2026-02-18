@@ -1,5 +1,6 @@
 local M = {}
 
+local common_data_extraction = require('dev-chronicles.panels.common.data_extraction')
 local notify = require('dev-chronicles.utils.notify')
 
 ---@param data chronicles.ChroniclesData
@@ -67,14 +68,13 @@ function M.get_dashboard_data_months(
   local orig_month, orig_year = l_pointer_month, l_pointer_year
   local start_ts = time_months.convert_month_str_to_timestamp(start_date)
   local end_ts = time_months.convert_month_str_to_timestamp(end_date, true)
-  local projects = data.projects
 
   if start_ts > end_ts then
     notify.warn(('start (%s) > end (%s)'):format(start_date, end_date))
     return
   end
 
-  M._filter_projects_by_period_inplace(projects, start_ts, end_ts)
+  local projects = common_data_extraction.filter_projects_by_period(data.projects, start_ts, end_ts)
 
   ---@type chronicles.Dashboard.FinalProjectDataMap
   local projects_filtered_parsed = {}
@@ -204,7 +204,6 @@ function M.get_dashboard_data_days(
   local start_ts = unnormalized_start_ts + 43200
   local end_ts = time_days.convert_day_str_to_timestamp(end_str, true)
   local canonical_today_timestamp = time_days.convert_day_str_to_timestamp(canonical_today_str)
-  local projects = data.projects
 
   if start_ts > end_ts then
     notify.warn(('start (%s) > end (%s)'):format(start_str, end_str))
@@ -227,7 +226,8 @@ function M.get_dashboard_data_days(
     end
   end
 
-  M._filter_projects_by_period_inplace(projects, unnormalized_start_ts, end_ts)
+  local projects =
+    common_data_extraction.filter_projects_by_period(data.projects, unnormalized_start_ts, end_ts)
 
   ---@type chronicles.Dashboard.FinalProjectDataMap
   local projects_filtered_parsed = {}
@@ -344,14 +344,13 @@ function M.get_dashboard_data_years(
 
   local start_ts = time_years.convert_year_str_to_timestamp(start_date)
   local end_ts = time_years.convert_year_str_to_timestamp(end_date, true)
-  local projects = data.projects
 
   if start_ts > end_ts then
     notify.warn(('start year: (%s) > end year: (%s)'):format(start_date, end_date))
     return
   end
 
-  M._filter_projects_by_period_inplace(projects, start_ts, end_ts)
+  local projects = common_data_extraction.filter_projects_by_period(data.projects, start_ts, end_ts)
 
   ---@type chronicles.Dashboard.FinalProjectDataMap
   local projects_filtered_parsed = {}

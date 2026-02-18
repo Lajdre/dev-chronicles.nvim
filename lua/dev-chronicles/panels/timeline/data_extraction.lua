@@ -1,5 +1,6 @@
 local M = {}
 
+local common_data_extraction = require('dev-chronicles.panels.common.data_extraction')
 local notify = require('dev-chronicles.utils.notify')
 local get_project_color =
   require('dev-chronicles.core.colors').closure_get_project_highlight(true, false, -1)
@@ -38,7 +39,6 @@ function M.get_timeline_data_days(
   local end_ts = time_days.convert_day_str_to_timestamp(end_str, true)
   local canonical_today_timestamp = time_days.convert_day_str_to_timestamp(canonical_today_str)
   local days_abbrs = abbr_labels_opts.date_abbrs
-  local projects = data.projects
 
   if start_ts > end_ts then
     notify.warn(('start (%s) > end (%s)'):format(start_str, end_str))
@@ -61,11 +61,8 @@ function M.get_timeline_data_days(
     end
   end
 
-  require('dev-chronicles.dashboard.data_extraction')._filter_projects_by_period_inplace(
-    projects,
-    start_ts,
-    end_ts
-  )
+  local projects =
+    common_data_extraction.filter_projects_by_period(data.projects, unnormalized_start_ts, end_ts)
 
   local orig_locale
   if abbr_labels_opts.locale then
@@ -172,18 +169,13 @@ function M.get_timeline_data_months(
   local start_ts = time_months.convert_month_str_to_timestamp(start_month)
   local end_ts = time_months.convert_month_str_to_timestamp(end_month, true)
   local months_abbrs = abbr_labels_opts.date_abbrs
-  local projects = data.projects
 
   if start_ts > end_ts then
     notify.warn(('start (%s) > end (%s)'):format(start_month, end_month))
     return
   end
 
-  require('dev-chronicles.dashboard.data_extraction')._filter_projects_by_period_inplace(
-    projects,
-    start_ts,
-    end_ts
-  )
+  local projects = common_data_extraction.filter_projects_by_period(data.projects, start_ts, end_ts)
 
   local orig_locale
   if abbr_labels_opts.locale then
@@ -305,18 +297,13 @@ function M.get_timeline_data_years(
 
   local start_ts = time_years.convert_year_str_to_timestamp(start_year)
   local end_ts = time_years.convert_year_str_to_timestamp(end_year, true)
-  local projects = data.projects
 
   if start_ts > end_ts then
     notify.warn(('start year: (%s) > end year: (%s)'):format(start_year, end_year))
     return
   end
 
-  require('dev-chronicles.dashboard.data_extraction')._filter_projects_by_period_inplace(
-    projects,
-    start_ts,
-    end_ts
-  )
+  local projects = common_data_extraction.filter_projects_by_period(data.projects, start_ts, end_ts)
 
   ---@type chronicles.Timeline.SegmentData[]
   local segments, len_segments = {}, 0
