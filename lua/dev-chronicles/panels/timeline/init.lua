@@ -124,6 +124,7 @@ function M._create_timeline_content(
   plugin_opts,
   curr_session_time
 )
+  local common_content = require('dev-chronicles.panels.common.content')
   local timeline_logic = require('dev-chronicles.panels.timeline.logic')
   local timeline_content = require('dev-chronicles.panels.timeline.content')
   local timeline_opts = plugin_opts.timeline
@@ -222,14 +223,7 @@ function M._create_timeline_content(
     win_width
   )
 
-  len_lines = require('dev-chronicles.dashboard.content').set_hline_lines_hl(
-    lines,
-    highlights,
-    win_width,
-    nil,
-    nil,
-    len_lines
-  )
+  len_lines = common_content.set_hline_lines_hl(lines, highlights, win_width, nil, nil, len_lines)
 
   if timeline_type_opts.segment_numeric_labels.enable then
     len_lines = timeline_content.set_numeric_labels_lines_hl(

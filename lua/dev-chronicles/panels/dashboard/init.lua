@@ -10,6 +10,7 @@ local M = {}
 function M.dashboard(data, panel_subtype, panel_subtype_args, opts, session_base, session_time)
   local notify = require('dev-chronicles.utils.notify')
   local dashboard_data_extraction = require('dev-chronicles.panels.dashboard.data_extraction')
+  local panels_common = require('dev-chronicles.panels.common')
   local PanelSubtype = require('dev-chronicles.core.enums').PanelSubtype
   local get_window_dimensions = require('dev-chronicles.utils').get_window_dimensions
 
@@ -130,6 +131,7 @@ function M._create_dashboard_content(
   dashboard_opts,
   curr_session_time
 )
+  local common_content = require('dev-chronicles.panels.common.content')
   local dashboard_content = require('dev-chronicles.panels.dashboard.content')
   local dashboard_logic = require('dev-chronicles.panels.dashboard.logic')
   local utils = require('dev-chronicles.utils')
@@ -274,8 +276,7 @@ function M._create_dashboard_content(
     len_lines
   )
 
-  len_lines =
-    dashboard_content.set_hline_lines_hl(lines, highlights, win_width, nil, nil, len_lines)
+  len_lines = common_content.set_hline_lines_hl(lines, highlights, win_width, nil, nil, len_lines)
 
   dashboard_content.set_project_names_lines_hl(
     lines,

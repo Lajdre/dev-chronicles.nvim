@@ -1,5 +1,6 @@
 local M = {}
 
+local common_content = require('dev-chronicles.panels.common.content')
 local format_time = require('dev-chronicles.core.time').format_time
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 
@@ -240,7 +241,7 @@ function M.set_header_lines_hl(
   lines[len_lines + 3] = ''
   len_lines = len_lines + 3
 
-  len_lines = M.set_hline_lines_hl(
+  len_lines = common_content.set_hline_lines_hl(
     lines,
     highlights,
     win_width,
@@ -472,25 +473,6 @@ function M.set_bars_lines_hl(
     lines[len_lines] = table.concat(line_chars)
   end
 
-  return len_lines
-end
-
----@param lines string[]
----@param highlights chronicles.Highlight[]
----@param win_width integer
----@param char? string
----@param hl_group? string
----@param len_lines? integer
----@return integer: len_lines
-function M.set_hline_lines_hl(lines, highlights, win_width, char, hl_group, len_lines)
-  len_lines = (len_lines or #lines) + 1
-  lines[len_lines] = string.rep(char or '▔', win_width)
-  table.insert(highlights, {
-    line = len_lines,
-    col = 0,
-    end_col = -1,
-    hl_group = hl_group or DefaultColors.DevChroniclesChartFloor,
-  })
   return len_lines
 end
 

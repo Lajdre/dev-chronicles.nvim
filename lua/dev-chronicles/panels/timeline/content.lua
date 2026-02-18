@@ -1,5 +1,6 @@
 local M = {}
 
+local common_content = require('dev-chronicles.panels.common.content')
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 local strings = require('dev-chronicles.utils.strings')
 local format_time = require('dev-chronicles.core.time').format_time
@@ -75,7 +76,7 @@ function M.set_header_lines_hl(
     lines[len_lines + 2] = ''
     lines[len_lines + 3] = ''
     len_lines = len_lines + 3
-    len_lines = require('dev-chronicles.dashboard.content').set_hline_lines_hl(
+    len_lines = common_content.set_hline_lines_hl(
       lines,
       highlights,
       win_width,
@@ -229,7 +230,7 @@ function M.set_header_lines_hl(
   len_lines = len_lines + 1
   lines[len_lines] = ''
 
-  len_lines = require('dev-chronicles.dashboard.content').set_hline_lines_hl(
+  len_lines = common_content.set_hline_lines_hl(
     lines,
     highlights,
     win_width,

@@ -444,15 +444,4 @@ function M.get_dashboard_data_years(
   }
 end
 
----@param projects table<string, chronicles.ChroniclesData.ProjectData>
----@param start_ts integer
----@param end_ts integer
-function M._filter_projects_by_period_inplace(projects, start_ts, end_ts)
-  for project_id, project_data in pairs(projects) do
-    if project_data.first_worked > end_ts or project_data.last_worked_canonical < start_ts then
-      projects[project_id] = nil
-    end
-  end
-end
-
 return M
