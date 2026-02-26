@@ -102,7 +102,11 @@ function M.end_session(data_file, track_days, min_session_time, extend_today_to_
   local state = require('dev-chronicles.core.state')
   local session_base, session_active = state.get_session_info(extend_today_to_4am)
 
-  if not session_active and not session_base.changes then
+  local has_session = session_active and session_active.session_time >= min_session_time
+  local has_changes = session_base.changes ~= nil
+
+  if not has_session or not has_changes then
+    state.abort_session()
     return
   end
 
@@ -115,11 +119,11 @@ function M.end_session(data_file, track_days, min_session_time, extend_today_to_
     return
   end
 
-  if session_active and session_active.session_time >= min_session_time then
+  if session_active and has_session then
     M.update_chronicles_data_with_curr_session(data, session_active, session_base, track_days, true)
   end
 
-  if session_base.changes then
+  if has_changes then
     M.apply_changes_to_chronicles_data(data, session_base.changes)
   end
 
