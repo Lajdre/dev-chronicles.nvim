@@ -196,6 +196,10 @@
 -- Plugin Configuration Opts Types
 -- --------------------------------------------
 
+-- -- --------------------------------------------
+-- -- Helper Types
+-- -- --------------------------------------------
+
 ---@class chronicles.Options.Dashboard.DefaultVars
 ---@field bar_width integer
 ---@field bar_spacing integer
@@ -203,7 +207,7 @@
 ---@field bar_footer_extends_by integer
 
 -- -- --------------------------------------------
--- -- Common Opts
+-- -- Dashboard & Timeline Common Opts
 -- -- --------------------------------------------
 
 ---@class chronicles.Options.Common.Header.PeriodIndicator
@@ -285,22 +289,6 @@
 ---@field dashboard_years chronicles.Options.Dashboard.Section
 ---@field dashboard_all chronicles.Options.Dashboard.Section
 
----@class chronicles.Options.TrackDays
----@field enable boolean
----@field optimize_storage_for_x_days? integer
-
----@alias chronicles.Options.HighlightDefinitions.Definition { fg?: string, bg?: string, bold?: boolean, italic?: boolean, underline?: boolean }
-
----@class chronicles.Options.HighlightDefinitions
----@field DevChroniclesAccent chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesChartFloor chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesGrayedOut chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesLightGray chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesWindowBG? chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesWindowBorder chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesWindowTitle chronicles.Options.HighlightDefinitions.Definition
----@field DevChroniclesBackupColor chronicles.Options.HighlightDefinitions.Definition
-
 --- -- --------------------------------------------
 --- -- Timeline Opts
 --- -- --------------------------------------------
@@ -347,7 +335,30 @@
 ---@field date_abbrs? string[]: timeline_days: 7 entries, Sunday first; timeline_months: 12 entries, January first
 
 --- -- --------------------------------------------
---- -- Top Level Opts
+--- -- Additional Top Level Opts
+--- -- --------------------------------------------
+
+---@class chronicles.Options.TrackDays
+---@field enable boolean
+---@field optimize_storage_for_x_days? integer
+
+---@alias chronicles.Options.HighlightDefinitions.Definition { fg?: string, bg?: string, bold?: boolean, italic?: boolean, underline?: boolean }
+
+---@class chronicles.Options.HighlightDefinitions
+---@field DevChroniclesAccent chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesChartFloor chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesGrayedOut chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesLightGray chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesWindowBG? chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesWindowBorder chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesWindowTitle chronicles.Options.HighlightDefinitions.Definition
+---@field DevChroniclesBackupColor chronicles.Options.HighlightDefinitions.Definition
+
+---@class chronicles.Options.Backup
+---@field enable boolean
+
+--- -- --------------------------------------------
+--- -- Chronicles Options Base
 --- -- --------------------------------------------
 
 ---@class chronicles.Options
@@ -364,6 +375,7 @@
 ---@field timeline chronicles.Options.Timeline
 ---@field project_list { show_help_hint: boolean }
 ---@field highlights chronicles.Options.HighlightDefinitions
+---@field backup chronicles.Options.Backup
 ---@field data_file string Path to the data file
 ---@field log_file string Path to the log file
 ---@field runtime_opts { for_dev_state_override?: chronicles.SessionState, parsed_exclude_subdirs_relative_map?: table<string, boolean>} -- exclude_subdirs_relative as a map

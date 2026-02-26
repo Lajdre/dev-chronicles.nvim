@@ -153,6 +153,9 @@ local defaults = {
     DevChroniclesWindowTitle = { fg = '#d3d3d3', bg = '#100e18', bold = true },
     DevChroniclesBackupColor = { fg = '#fff588', bold = true },
   },
+  backup = {
+    enable = true,
+  },
   runtime_opts = {
     for_dev_state_override = nil,
     parsed_exclude_subdirs_relative_map = nil,
