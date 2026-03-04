@@ -108,6 +108,20 @@ function M.get_project_name(project_id)
   return project_id:match('([^/]+)/*$') or project_id
 end
 
+---@param s string
+---@param n integer
+---@param sep string
+function M.rep_with_sep(s, n, sep)
+  if n <= 0 then
+    return ''
+  end
+  local t = {}
+  for i = 1, n do
+    t[i] = s
+  end
+  return table.concat(t, sep)
+end
+
 ---Places a label into a character array. This "simple" variant assumes all
 ---characters in `label` are single-byte and occupy one cell. Designed as a
 ---helper for positioning textual labels relative to rendered bars.

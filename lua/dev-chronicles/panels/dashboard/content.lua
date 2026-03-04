@@ -3,6 +3,7 @@ local M = {}
 local common_content = require('dev-chronicles.panels.common.content')
 local format_time = require('dev-chronicles.core.time').format_time
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
+local strings_utils = require('dev-chronicles.utils.strings')
 
 ---Adds 4 line header. Monster function -- TODO: make this not that bad
 ---@param lines string[]
@@ -121,11 +122,15 @@ function M.set_header_lines_hl(
         - (bars_start_pos + total_bars_disp_width)
 
       local top_bars_str =
-        string.rep(single_top_bar, n_projects_to_show, string.rep(' ', space_width))
+        strings_utils.rep_with_sep(single_top_bar, n_projects_to_show, string.rep(' ', space_width))
       local top_bars_str_bytes = single_top_bar_bytes * n_projects_to_show
         + (n_projects_to_show - 1) * space_width
-      local bottom_bars_str =
-        string.rep(single_bottom_bar, n_projects_to_show, string.rep(' ', space_width))
+
+      local bottom_bars_str = strings_utils.rep_with_sep(
+        single_bottom_bar,
+        n_projects_to_show,
+        string.rep(' ', space_width)
+      )
 
       -- Calculate starting index (truncate top_projects from left if needed)
       local start_idx = len_top_projects - n_projects_to_show + 1
@@ -147,7 +152,7 @@ function M.set_header_lines_hl(
         -- screen (for example, if it doesn’t fit on the screen). In that case,
         -- project_id_to_highlight won’t contain it, and a distinct highlight is
         -- used to indicate that this time period had a most-worked-on project
-        -- that isn’t currently displayed.
+        -- that isn’t currently displayed (very unlikely).
         local color = project_id
             and (project_id_to_highlight[project_id] or DefaultColors.DevChroniclesLightGray)
           or DefaultColors.DevChroniclesGrayedOut
