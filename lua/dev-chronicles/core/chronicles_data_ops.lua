@@ -1,11 +1,12 @@
 local M = {}
 
----Creates a cheap fork of ChroniclesData safe for session updates without
+---Creates a cheap fork of ChroniclesData safe for session data updates without
 ---corrupting the cached source. Only the project matching
----`deep_copy_project_id` is deep-copied (its nested tables get mutated); all
----other projects remain as shared references and must NOT be mutated. The
----returned object is a temporary display-only snapshot, never ment to be
----persisted.
+---`deep_copy_project_id` is deep-copied in preparation for its fields being
+---mutated. All other projects remain as shared references and must NOT be
+---mutated internally, although deleting any project by setting it to nil will
+---not affect the original data. The returned object is a temporary
+---display-only snapshot, never meant to be persisted.
 ---@param chronicles_data  chronicles.ChroniclesData
 ---@param deep_copy_project_id string
 ---@return chronicles.ChroniclesData
