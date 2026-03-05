@@ -154,14 +154,19 @@ local defaults = {
     DevChroniclesBackupColor = { fg = '#fff588', bold = true },
   },
   backup = {
-    enable = true,
+    interval = 1296000,
+    cleanup_interval = 7776000,
+    cleanup_n_to_keep = 10,
   },
   runtime_opts = {
     for_dev_state_override = nil,
     parsed_exclude_subdirs_relative_map = nil,
   },
-  data_file = 'dev-chronicles.json',
-  log_file = 'log.dev-chronicles.log',
+  storage_paths = {
+    data_file = 'dev-chronicles.json',
+    log_file = 'log.dev-chronicles.log',
+    backup_dir = 'backup_dev-chronicles/',
+  },
   extra_default_dashboard_bar_reprs = {
     {
       { ' ▼ ' },
@@ -213,17 +218,6 @@ function M.setup(opts)
     end
     merged.runtime_opts.parsed_exclude_subdirs_relative_map = parsed_exclude_subdirs_relative_map
   end
-
-  if vim.fn.isabsolutepath(merged.data_file) ~= 1 then
-    merged.data_file = vim.fn.stdpath('data') .. '/dev-chronicles/' .. merged.data_file
-  end
-
-  if vim.fn.isabsolutepath(merged.log_file) ~= 1 then
-    merged.log_file = vim.fn.stdpath('data') .. '/dev-chronicles/' .. merged.log_file
-  end
-
-  vim.fn.mkdir(vim.fn.fnamemodify(merged.data_file, ':h'), 'p')
-  vim.fn.mkdir(vim.fn.fnamemodify(merged.log_file, ':h'), 'p')
 
   if
     merged.dashboard.use_extra_default_dashboard_bar_reprs

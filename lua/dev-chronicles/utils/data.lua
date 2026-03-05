@@ -1,11 +1,11 @@
 local M = {}
 
-local notify = require('dev-chronicles.utils.notify')
 local uv = vim.uv
+local notify = require('dev-chronicles.utils.notify')
 
 ---@type {file_path: string?, file_mtime: integer?, data: chronicles.ChroniclesData?}
 local chronicles_data_cache = {
-  file_path = nil,
+  data_file = nil,
   file_mtime = nil,
   data = nil,
 }
@@ -34,35 +34,36 @@ function M._read_file(path)
   return data, read_err
 end
 
----@param file_path string
+---@param data_file string
 ---@return chronicles.ChroniclesData?
-function M.load_data(file_path)
-  local file_stat = uv.fs_stat(file_path)
+function M.load_data(data_file)
+  local file_stat = uv.fs_stat(data_file)
   local current_mtime = file_stat and file_stat.mtime.sec or 0
 
   if
     current_mtime == chronicles_data_cache.file_mtime
-    and chronicles_data_cache.file_path == file_path
+    and chronicles_data_cache.data_file == data_file
     and chronicles_data_cache.data
   then
     return chronicles_data_cache.data
   end
 
-  if vim.fn.filereadable(file_path) == 0 then
+  if vim.fn.filereadable(data_file) == 0 then
     local now_ts = os.time()
     ---@type chronicles.ChroniclesData
     local default = {
       global_time = 0,
       tracking_start = now_ts,
       last_data_write = now_ts,
+      last_backup = now_ts,
       schema_version = 1,
       projects = {},
     }
-    chronicles_data_cache = { file_path = file_path, file_mtime = 0, data = default }
+    chronicles_data_cache = { data_file = data_file, file_mtime = 0, data = default }
     return default
   end
 
-  local content, err = M._read_file(file_path)
+  local content, err = M._read_file(data_file)
   if not content then
     notify.error('Failed loading data from disk: ' .. (err or 'read error'))
     return
@@ -75,7 +76,7 @@ function M.load_data(file_path)
   end
 
   chronicles_data_cache = {
-    file_path = file_path,
+    data_file = data_file,
     file_mtime = current_mtime,
     data = data,
   }
@@ -84,10 +85,28 @@ function M.load_data(file_path)
 end
 
 ---@param data chronicles.ChroniclesData
----@param file_path string
-function M.save_data(data, file_path)
+---@param data_file string
+---@param backup_opts chronicles.Options.Backup
+---@param now_ts integer
+function M.save_data(data, data_file, backup_opts, now_ts)
+  if backup_opts.interval then
+    local since_last_backup = now_ts - data.last_backup
+    if since_last_backup > backup_opts.interval then
+      local ok = require('dev-chronicles.utils.backups').backup_chronicles_data(data_file, now_ts)
+      if ok then
+        data.last_backup = now_ts
+      end
+
+      if backup_opts.cleanup_interval and since_last_backup > backup_opts.cleanup_interval then
+        require('dev-chronicles.utils.backups').clear_chronicles_data_backups(
+          backup_opts.cleanup_n_to_keep
+        )
+      end
+    end
+  end
+
   local encoded = vim.json.encode(data)
-  local tmp = file_path .. '.tmp'
+  local tmp = data_file .. '.tmp'
 
   local fd, open_err = uv.fs_open(tmp, 'w', 438)
   if not fd then
@@ -104,7 +123,7 @@ function M.save_data(data, file_path)
     return
   end
 
-  local rename_ok, rename_err = uv.fs_rename(tmp, file_path)
+  local rename_ok, rename_err = uv.fs_rename(tmp, data_file)
   if not rename_ok then
     notify.error('Failed to rename temp file: ' .. rename_err)
   end

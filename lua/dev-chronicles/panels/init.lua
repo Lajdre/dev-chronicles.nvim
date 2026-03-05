@@ -5,8 +5,10 @@ local M = {}
 ---@param panel_subtype_args? chronicles.Panel.Subtype.Args
 ---@param opts? chronicles.Options
 function M.panel(panel_type, panel_subtype, panel_subtype_args, opts)
+  local storage_paths = require('dev-chronicles.utils.storage_paths')
   opts = opts or require('dev-chronicles.config').get_opts()
-  local data = require('dev-chronicles.utils.data').load_data(opts.data_file)
+
+  local data = require('dev-chronicles.utils.data').load_data(storage_paths.get_data_file())
   if not data then
     return
   end

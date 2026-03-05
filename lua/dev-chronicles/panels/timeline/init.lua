@@ -103,10 +103,11 @@ function M.timeline(data, panel_subtype, panel_subtype_args, opts, session_base,
     window_dimensions = window_dimensions,
     buf_name = 'Dev Chronicles Timeline',
     window_title = timeline_type_options.header.window_title,
-    window_boarder = nil,
+    window_boarder = nil, -- TODO: todo
   }
 end
 
+---Creates lines and highlights tables for the timeline panel
 ---@param timeline_data chronicles.Timeline.Data
 ---@param timeline_type_opts chronicles.Options.Timeline.Section
 ---@param win_width integer

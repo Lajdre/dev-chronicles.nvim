@@ -1,5 +1,7 @@
 local M = {}
 
+local utils = require('dev-chronicles.utils')
+
 ---@param data chronicles.ChroniclesData
 ---@param panel_subtype chronicles.Panel.Subtype
 ---@param panel_subtype_args chronicles.Panel.Subtype.Args
@@ -12,7 +14,6 @@ function M.dashboard(data, panel_subtype, panel_subtype_args, opts, session_base
   local dashboard_data_extraction = require('dev-chronicles.panels.dashboard.data_extraction')
   local panels_common = require('dev-chronicles.panels.common')
   local PanelSubtype = require('dev-chronicles.core.enums').PanelSubtype
-  local get_window_dimensions = require('dev-chronicles.utils').get_window_dimensions
 
   ---@type chronicles.Dashboard.Data?
   local dashboard_data
@@ -81,7 +82,12 @@ function M.dashboard(data, panel_subtype, panel_subtype_args, opts, session_base
       dashboard_type_options.header.top_projects.enable
     )
   else
-    notify.warn('Unrecognised panel subtype for a dashboard: ' .. panel_subtype)
+    notify.warn(
+      string.format(
+        "Unrecognized panel subtype for Dashboard: '%s'.\nExpected one of: 'Days', 'Months', 'Years', or 'All'.",
+        tostring(panel_subtype)
+      )
+    )
     return
   end
 
@@ -89,8 +95,10 @@ function M.dashboard(data, panel_subtype, panel_subtype_args, opts, session_base
     return
   end
 
-  local window_dimensions =
-    get_window_dimensions(dashboard_type_options.window_width, dashboard_type_options.window_height)
+  local window_dimensions = utils.get_window_dimensions(
+    dashboard_type_options.window_width,
+    dashboard_type_options.window_height
+  )
 
   local lines, highlights = M._create_dashboard_content(
     dashboard_data,

@@ -189,6 +189,7 @@
 ---@field global_time integer
 ---@field tracking_start integer
 ---@field last_data_write integer
+---@field last_backup integer
 ---@field schema_version integer
 ---@field projects table<string, chronicles.ChroniclesData.ProjectData>
 
@@ -355,7 +356,14 @@
 ---@field DevChroniclesBackupColor chronicles.Options.HighlightDefinitions.Definition
 
 ---@class chronicles.Options.Backup
----@field enable boolean
+---@field interval? integer
+---@field cleanup_interval? integer
+---@field cleanup_n_to_keep integer
+
+---@class chronicles.Options.StoragePaths
+---@field data_file string
+---@field log_file string
+---@field backup_dir string
 
 --- -- --------------------------------------------
 --- -- Chronicles Options Base
@@ -376,7 +384,6 @@
 ---@field project_list { show_help_hint: boolean }
 ---@field highlights chronicles.Options.HighlightDefinitions
 ---@field backup chronicles.Options.Backup
----@field data_file string Path to the data file
----@field log_file string Path to the log file
+---@field storage_paths chronicles.Options.StoragePaths
 ---@field runtime_opts { for_dev_state_override?: chronicles.SessionState, parsed_exclude_subdirs_relative_map?: table<string, boolean>} -- exclude_subdirs_relative as a map
 ---@field extra_default_dashboard_bar_reprs string[][][]

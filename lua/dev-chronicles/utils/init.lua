@@ -31,7 +31,7 @@ function M.get_random_from_tbl(table)
 end
 
 ---Shuffles a table in-place
----@param tbl table[]
+---@param tbl any[]
 function M.shuffle(tbl)
   for i = #tbl, 2, -1 do
     local j = math.random(i)
@@ -119,14 +119,14 @@ end
 ---Sanity check for project times. All months’ times sum to their year’s
 ---total_time. All years’ times sum to their project’s total_time. All
 ---projects’ total_time values sum to global_time.
----@param opts? { data_path?: string, data?: chronicles.ChroniclesData }
+---@param opts? { data_file?: string, data?: chronicles.ChroniclesData }
 function M.validate_data(opts)
   local notify = require('dev-chronicles.utils.notify')
   opts = opts or {}
 
   local data = opts.data
     or require('dev-chronicles.utils.data').load_data(
-      opts.data_path or require('dev-chronicles.config').get_opts().data_file
+      opts.data_file or require('dev-chronicles.utils.storage_paths').get_data_file()
     )
   if not data then
     return

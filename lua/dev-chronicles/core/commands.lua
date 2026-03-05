@@ -11,6 +11,7 @@ function M._setup_the_command(opts)
   local api = require('dev-chronicles.api')
   local enums = require('dev-chronicles.core.enums')
   local notify = require('dev-chronicles.utils.notify')
+  local storage_paths = require('dev-chronicles.utils.storage_paths')
 
   vim.api.nvim_create_user_command('DevChronicles', function(command_opts)
     local args = command_opts.fargs
@@ -74,9 +75,9 @@ function M._setup_the_command(opts)
       notify.notify('Projects cleaned')
     elseif first_arg == 'logs' then
       if args[2] == 'clear' then
-        require('dev-chronicles.panels.logs').clear_logs(opts.log_file)
+        require('dev-chronicles.panels.logs').clear_logs(storage_paths.get_log_file())
       else
-        require('dev-chronicles.panels.logs').display_logs(opts.log_file)
+        require('dev-chronicles.panels.logs').display_logs(storage_paths.get_log_file())
       end
     elseif first_arg == 'validate' then
       require('dev-chronicles.utils').validate_data({ data_path = opts.data_file })
@@ -164,10 +165,11 @@ function M._setup_autocmds(opts)
     group = group,
     callback = function()
       require('dev-chronicles.core.session_ops').end_session(
-        opts.data_file,
+        require('dev-chronicles.utils.storage_paths').get_data_file(),
         opts.track_days,
         opts.min_session_time,
-        opts.extend_today_to_4am
+        opts.extend_today_to_4am,
+        opts.backup
       )
     end,
   })

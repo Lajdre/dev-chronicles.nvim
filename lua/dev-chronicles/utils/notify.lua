@@ -1,14 +1,9 @@
-local M = { log_file = nil }
+local M = {}
 
----@param log_file string
-function M.setup_notify(log_file)
-  M.log_file = log_file
-end
+local storage_paths = require('dev-chronicles.utils.storage_paths')
 
 function M.log(level, msg)
-  if M.log_file then
-    vim.fn.writefile({ ('[%s] %s'):format(level, msg) }, M.log_file, 'a')
-  end
+  vim.fn.writefile({ ('[%s] %s'):format(level, msg) }, storage_paths.get_log_file(), 'a')
 end
 
 ---@param msg string

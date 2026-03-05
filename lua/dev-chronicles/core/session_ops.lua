@@ -98,14 +98,15 @@ end
 ---@param track_days chronicles.Options.TrackDays
 ---@param min_session_time integer
 ---@param extend_today_to_4am boolean
-function M.end_session(data_file, track_days, min_session_time, extend_today_to_4am)
+---@param backup_opts chronicles.Options.Backup
+function M.end_session(data_file, track_days, min_session_time, extend_today_to_4am, backup_opts)
   local state = require('dev-chronicles.core.state')
   local session_base, session_active = state.get_session_info(extend_today_to_4am)
 
   local has_session = session_active and session_active.session_time >= min_session_time
   local has_changes = session_base.changes ~= nil
 
-  if not has_session or not has_changes then
+  if not has_session and not has_changes then
     state.abort_session()
     return
   end
@@ -127,7 +128,7 @@ function M.end_session(data_file, track_days, min_session_time, extend_today_to_
     M.apply_changes_to_chronicles_data(data, session_base.changes)
   end
 
-  data_utils.save_data(data, data_file)
+  data_utils.save_data(data, data_file, backup_opts, session_base.now_ts)
 
   state.abort_session()
 end

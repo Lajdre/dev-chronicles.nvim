@@ -5,13 +5,14 @@ local notify = require('dev-chronicles.utils.notify')
 local render = require('dev-chronicles.core.render')
 local session_ops = require('dev-chronicles.core.session_ops')
 local utils = require('dev-chronicles.utils')
+local storage_paths = require('dev-chronicles.utils.storage_paths')
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 
 M.project_list_indent = 2
 
 ---@param opts chronicles.Options
 function M.display_project_list(opts)
-  local data = require('dev-chronicles.utils.data').load_data(opts.data_file)
+  local data = require('dev-chronicles.utils.data').load_data(storage_paths.get_data_file())
   if not data then
     return
   end

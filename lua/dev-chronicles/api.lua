@@ -26,25 +26,27 @@ function M.abort_session()
   require('dev-chronicles.core.state').abort_session()
 end
 
----@param opts? { min_session_time?: number, track_days?: chronicles.Options.TrackDays, extend_today_to_4am?: boolean, data_file?: string }
+---@param opts? { min_session_time?: number, track_days?: chronicles.Options.TrackDays, extend_today_to_4am?: boolean, data_file?: string, backup?: chronicles.Options.Backup }
 function M.finish_session(opts)
   opts = opts or {}
   local plugin_opts = require('dev-chronicles.config').get_opts()
-  local data_file = opts.data_file or plugin_opts.data_file
+  local data_file = opts.data_file or require('dev-chronicles.utils.storage_paths').get_data_file()
   local track_days = opts.track_days or plugin_opts.track_days
   local min_session_time = opts.min_session_time or plugin_opts.min_session_time
   local extend_today_to_4am = opts.extend_today_to_4am or plugin_opts.extend_today_to_4am
+  local backup_opts = opts.backup or plugin_opts.backup
   require('dev-chronicles.core.session_ops').end_session(
     data_file,
     track_days,
     min_session_time,
-    extend_today_to_4am
+    extend_today_to_4am,
+    backup_opts
   )
 end
 
 ---@param optimize_storage_for_x_days? integer
----@param data_path? string
-function M.clean_projects_day_data(optimize_storage_for_x_days, data_path)
+---@param data_file? string
+function M.clean_projects_day_data(optimize_storage_for_x_days, data_file)
   local cleanup_project_day_data =
     require('dev-chronicles.core.session_ops').cleanup_project_day_data
   local data_utils = require('dev-chronicles.utils.data')
@@ -62,9 +64,9 @@ function M.clean_projects_day_data(optimize_storage_for_x_days, data_path)
     optimize_storage_for_x_days = plugin_opts.track_days.optimize_storage_for_x_days
   end
 
-  data_path = data_path or plugin_opts.data_file
+  data_file = data_file or require('dev-chronicles.utils.storage_paths').get_data_file()
 
-  local data = data_utils.load_data(data_path)
+  local data = data_utils.load_data(data_file)
   if not data then
     return
   end
@@ -73,7 +75,7 @@ function M.clean_projects_day_data(optimize_storage_for_x_days, data_path)
     cleanup_project_day_data(project_data, optimize_storage_for_x_days, now_ts)
   end
 
-  data_utils.save_data(data, data_path)
+  data_utils.save_data(data, data_file, plugin_opts.backup, now_ts)
 end
 
 return M
