@@ -5,7 +5,6 @@ M.PanelType = {
   Timeline = 'Timeline',
   Stats = 'Stats',
   List = 'List',
-  All = 'All',
 }
 
 M.PanelSubtype = {

@@ -5,7 +5,6 @@
 ---| 'Timeline'
 ---| 'Stats'
 ---| 'List'
----| 'All'
 
 ---@alias chronicles.Panel.Subtype
 ---| 'Days'
