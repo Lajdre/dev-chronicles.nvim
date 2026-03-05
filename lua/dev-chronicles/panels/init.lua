@@ -24,7 +24,9 @@ function M.panel(panel_type, panel_subtype, panel_subtype_args, opts)
 
   local session_base, session_active = get_session_info(opts.extend_today_to_4am)
   if session_active then
-    data = chronicles_data_ops.fork_chronicles_data_for_session(data, session_active.project_id)
+    if panel_type ~= PanelType.List then
+      data = chronicles_data_ops.fork_chronicles_data_for_session(data, session_active.project_id)
+    end
     data = update_chronicles_data_with_curr_session(
       data,
       session_active,
@@ -55,6 +57,8 @@ function M.panel(panel_type, panel_subtype, panel_subtype_args, opts)
       session_base,
       session_active and session_active.session_time
     )
+  elseif panel_type == PanelType.List then
+    panel_data = require('dev-chronicles.panels.project_list').project_list(data, opts)
   end
 
   if panel_data then

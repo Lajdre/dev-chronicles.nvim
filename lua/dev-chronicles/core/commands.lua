@@ -55,7 +55,7 @@ function M._setup_the_command(opts)
         )
       )
     elseif first_arg == 'list' then
-      require('dev-chronicles.panels.project_list').display_project_list(opts)
+      api.panel(enums.PanelType.List, enums.PanelSubtype.All, nil, opts)
     elseif first_arg == 'abort' then
       api.abort_session()
       notify.notify('Session aborted')

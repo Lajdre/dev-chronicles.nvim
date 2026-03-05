@@ -1,27 +1,25 @@
-local M = {}
+local M = {
+  _changes = nil,
+  _project_list_left_indent = 2,
+  _project_list_right_padding = 1,
+}
 
 local colors = require('dev-chronicles.core.colors')
-local notify = require('dev-chronicles.utils.notify')
+local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 local render = require('dev-chronicles.core.render')
 local session_ops = require('dev-chronicles.core.session_ops')
+local notify = require('dev-chronicles.utils.notify')
 local utils = require('dev-chronicles.utils')
-local storage_paths = require('dev-chronicles.utils.storage_paths')
-local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 
-M.project_list_indent = 2
-
+---@param data chronicles.ChroniclesData
 ---@param opts chronicles.Options
-function M.display_project_list(opts)
-  local data = require('dev-chronicles.utils.data').load_data(storage_paths.get_data_file())
-  if not data then
-    return
-  end
-
-  -- The default mappings for `q` and `<Esc>` are currently not overridden, so
-  -- apart from initializing, this line also clears the `_changes` table
-  -- between executions.
+---@return chronicles.Panel.Data?
+function M.project_list(data, opts)
   ---@type chronicles.SessionState.Changes
   M._changes = {}
+  -- The default mappings for `q` and `<Esc>` are currently not overridden, so
+  -- apart from initializing, this line also clears the `_changes` table
+  -- between executions. Also the user can quit the window in different ways.
 
   local lines, highlights, lines_idx, width = {}, {}, 0, 0
 
@@ -65,7 +63,7 @@ function M.display_project_list(opts)
     return data.projects[a].total_time > data.projects[b].total_time
   end)
 
-  local indent = string.rep(' ', M.project_list_indent)
+  local indent = string.rep(' ', M._project_list_left_indent)
 
   for i = 1, lines_idx do
     local line_with_only_proj_name = lines[i]
@@ -103,9 +101,10 @@ function M.display_project_list(opts)
     })
   end
 
-  width = width + 1
+  width = width + M._project_list_right_padding
 
-  render.render({
+  ---@type chronicles.Panel.Data
+  return {
     lines = lines,
     highlights = highlights,
     buf_name = 'Dev Chronicles Project List',
@@ -120,7 +119,7 @@ function M.display_project_list(opts)
       row = 1,
       col = 1,
     },
-  })
+  }
 end
 
 function M._show_project_help()
@@ -174,7 +173,7 @@ function M._show_project_info(data_projects, context)
   local format_time = require('dev-chronicles.core.time').format_time
   local get_day_str = require('dev-chronicles.core.time.days').get_day_str
 
-  local project_data = data_projects[context.line_content:sub(M.project_list_indent + 1)]
+  local project_data = data_projects[context.line_content:sub(M._project_list_left_indent + 1)]
   if not project_data then
     return
   end
@@ -222,7 +221,7 @@ end
 ---@param toggle_selection boolean
 ---@param callback? function
 function M._mark_project(data_projects, context, symbol, hl_name, toggle_selection, callback)
-  local project_name = context.line_content:sub(M.project_list_indent + 1)
+  local project_name = context.line_content:sub(M._project_list_left_indent + 1)
   local project_data = data_projects[project_name]
   if not project_data then
     return
@@ -273,7 +272,7 @@ end
 ---@param data_projects chronicles.ChroniclesData.ProjectData[]
 ---@param context chronicles.Panel.Context
 function M._change_project_color(data_projects, context)
-  local project_name = context.line_content:sub(M.project_list_indent + 1)
+  local project_name = context.line_content:sub(M._project_list_left_indent + 1)
   local project_data = data_projects[project_name]
   if not project_data then
     return

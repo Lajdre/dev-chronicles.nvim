@@ -4,6 +4,7 @@ M.PanelType = {
   Dashboard = 'Dashboard',
   Timeline = 'Timeline',
   Stats = 'Stats',
+  List = 'List',
   All = 'All',
 }
 
