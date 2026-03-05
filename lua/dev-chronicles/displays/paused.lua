@@ -6,7 +6,7 @@ local notify = require('dev-chronicles.utils.notify')
 local paused_buf, paused_win = nil, nil
 
 ---@param extend_today_to_4am? boolean
-function M.pause(extend_today_to_4am)
+function M.display_pause(extend_today_to_4am)
   extend_today_to_4am = extend_today_to_4am
     or require('dev-chronicles.config').get_opts().extend_today_to_4am
 

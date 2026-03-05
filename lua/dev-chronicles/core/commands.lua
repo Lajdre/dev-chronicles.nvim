@@ -60,7 +60,7 @@ function M._setup_the_command(opts)
       api.abort_session()
       notify.notify('Session aborted')
     elseif first_arg == 'time' then
-      require('dev-chronicles.panels.session_time').display_session_time()
+      require('dev-chronicles.displays.session_time').display_session_time()
     elseif first_arg == 'finish' then
       api.finish_session()
       notify.notify('Session finished')
@@ -75,9 +75,9 @@ function M._setup_the_command(opts)
       notify.notify('Projects cleaned')
     elseif first_arg == 'logs' then
       if args[2] == 'clear' then
-        require('dev-chronicles.panels.logs').clear_logs(storage_paths.get_log_file())
+        require('dev-chronicles.displays.logs').clear_logs(storage_paths.get_log_file())
       else
-        require('dev-chronicles.panels.logs').display_logs(storage_paths.get_log_file())
+        require('dev-chronicles.displays.logs').display_logs(storage_paths.get_log_file())
       end
     elseif first_arg == 'validate' then
       require('dev-chronicles.utils').validate_data({ data_path = opts.data_file })
@@ -107,7 +107,7 @@ function M._setup_the_command(opts)
         )
       end
     elseif first_arg == 'pause' then
-      require('dev-chronicles.panels.paused').pause(opts.extend_today_to_4am)
+      require('dev-chronicles.displays.paused').display_pause(opts.extend_today_to_4am)
     else
       notify.notify(
         'Usage: :DevChronicles [all | days [start_offset [end_offset]] |'

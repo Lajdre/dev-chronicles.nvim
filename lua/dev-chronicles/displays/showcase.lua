@@ -2,7 +2,7 @@ local M = {}
 
 ---@param opts? chronicles.Options
 ---@param panel_subtype? chronicles.Panel.Subtype
-function M.showcase(opts, panel_subtype)
+function M.display_showcase(opts, panel_subtype)
   local time_days = require('dev-chronicles.core.time.days')
   local time_months = require('dev-chronicles.core.time.months')
   local time_years = require('dev-chronicles.core.time.years')
