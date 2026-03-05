@@ -12,8 +12,9 @@ function M.display_logs(logs_path)
   end
 
   local window_title = 'DevChronicles logs'
-  if n_lines == 1 then
+  if n_lines <= 1 then
     lines = { 'Logs empty' }
+    n_lines = 1
     max_width = math.max(#lines[1], #window_title + 2)
   end
 

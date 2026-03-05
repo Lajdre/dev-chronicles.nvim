@@ -114,13 +114,18 @@ end
 ---@param prefix_line string?
 ---@return string[]?, integer?, integer?
 function M.read_file_lines(path, prefix_line)
+  local lines, n_lines, max_width = {}, 0, 0
+
+  if vim.fn.filereadable(path) == 0 then
+    return lines, n_lines, max_width
+  end
+
   local text, err = M._read_file(path)
   if not text then
     notify.warn('Failed to read ' .. path .. ': ' .. (err or 'no error supplied'))
     return
   end
 
-  local lines, n_lines, max_width = {}, 0, 0
   if prefix_line then
     n_lines = n_lines + 1
     lines[n_lines] = prefix_line
