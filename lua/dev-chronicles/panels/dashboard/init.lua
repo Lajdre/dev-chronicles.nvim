@@ -129,9 +129,9 @@ function M._create_dashboard_content(
   curr_session_time
 )
   local common_content = require('dev-chronicles.panels.common.content')
+  local common_logic = require('dev-chronicles.panels.common.logic')
   local dashboard_content = require('dev-chronicles.panels.dashboard.content')
   local dashboard_logic = require('dev-chronicles.panels.dashboard.logic')
-  local utils = require('dev-chronicles.utils')
 
   local lines = {}
   local highlights = {}
@@ -164,7 +164,7 @@ function M._create_dashboard_content(
     )
   end
 
-  local n_projects_to_keep, chart_left_margin_col = dashboard_logic.calc_chart_stats(
+  local n_projects_to_keep, chart_left_margin_col = common_logic.calc_chart_stats(
     dashboard_opts.bar_width,
     dashboard_opts.bar_spacing,
     max_chart_width,

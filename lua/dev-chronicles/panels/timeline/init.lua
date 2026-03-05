@@ -123,6 +123,7 @@ function M._create_timeline_content(
   curr_session_time
 )
   local common_content = require('dev-chronicles.panels.common.content')
+  local common_logic = require('dev-chronicles.panels.common.logic')
   local timeline_logic = require('dev-chronicles.panels.timeline.logic')
   local timeline_content = require('dev-chronicles.panels.timeline.content')
   local timeline_opts = plugin_opts.timeline
@@ -150,14 +151,13 @@ function M._create_timeline_content(
   local vertical_space_for_bars = chart_height - 3 -- time labels row + gap 1 + chart floor
   local n_segments = #timeline_data.segments
 
-  local n_segments_to_keep, chart_left_margin_col =
-    require('dev-chronicles.dashboard.logic').calc_chart_stats(
-      timeline_type_opts.bar_width,
-      timeline_type_opts.bar_spacing,
-      max_chart_width,
-      n_segments,
-      win_width
-    )
+  local n_segments_to_keep, chart_left_margin_col = common_logic.calc_chart_stats(
+    timeline_type_opts.bar_width,
+    timeline_type_opts.bar_spacing,
+    max_chart_width,
+    n_segments,
+    win_width
+  )
 
   if n_segments_to_keep < 1 then
     return timeline_content.handle_no_segments_lines_hl(
