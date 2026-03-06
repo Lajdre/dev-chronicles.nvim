@@ -1,9 +1,12 @@
-local M = {}
+local M = {
+  ---@type integer?
+  _paused_buf = nil,
+  ---@type integer?
+  _paused_win = nil,
+}
 
 local state = require('dev-chronicles.core.state')
 local notify = require('dev-chronicles.utils.notify')
----@type integer?, integer?
-local paused_buf, paused_win = nil, nil
 
 ---@param extend_today_to_4am? boolean
 function M.display_pause(extend_today_to_4am)
@@ -49,7 +52,7 @@ function M.display_pause(extend_today_to_4am)
     end,
   }
 
-  paused_buf, paused_win = require('dev-chronicles.core.render').render({
+  M._paused_buf, M._paused_win = require('dev-chronicles.core.render').render({
     buf_name = 'DevChronicles paused',
     lines = lines,
     actions = actions,
@@ -69,14 +72,14 @@ function M._unpause_session_helper()
     notify.warn('Unpausing the session failed')
   end
 
-  if paused_win and vim.api.nvim_win_is_valid(paused_win) then
-    vim.api.nvim_win_close(paused_win, true)
-    if paused_buf and vim.api.nvim_buf_is_valid(paused_buf) then
-      vim.api.nvim_buf_delete(paused_buf, { force = true })
+  if M._paused_win and vim.api.nvim_win_is_valid(M._paused_win) then
+    vim.api.nvim_win_close(M._paused_win, true)
+    if M._paused_buf and vim.api.nvim_buf_is_valid(M._paused_buf) then
+      vim.api.nvim_buf_delete(M._paused_buf, { force = true })
     end
   end
 
-  paused_buf, paused_win = nil, nil
+  M._paused_buf, M._paused_win = nil, nil
 end
 
 return M
