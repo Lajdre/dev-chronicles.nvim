@@ -556,12 +556,7 @@ function M.handle_no_projects_lines_hl(
     {}
   )
 
-  require('dev-chronicles.utils').set_no_data_mess_lines_hl(
-    lines,
-    highlights,
-    win_width,
-    win_height
-  )
+  common_content.set_no_data_mess_lines_hl(lines, highlights, win_width, win_height)
 
   return lines, highlights
 end
