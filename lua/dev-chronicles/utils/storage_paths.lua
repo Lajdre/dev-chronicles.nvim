@@ -1,60 +1,58 @@
 local M = {
-  _initialized = false,
+  ---@type chronicles.Options.StoragePaths?
   _storage_paths = nil,
-  _cache = nil,
 }
 
----@param storage_paths chronicles.Options.StoragePaths
-function M.setup_storage_paths(storage_paths)
-  M._storage_paths = storage_paths
-  M._initialized = true
-  M._cache = {}
-end
-
----@param path string
----@param base string?
----@return string
-function M._resolve_path(path, base)
-  local normalized = vim.fs.normalize(path)
-  if vim.fn.isabsolutepath(normalized) == 1 then
-    return normalized
+function M._ensure_storage_paths()
+  if not M._storage_paths then
+    M._storage_paths = require('dev-chronicles.config').get_opts().storage_paths
   end
-  base = base or vim.fn.stdpath('data')
-  return vim.fs.joinpath(base, 'dev-chronicles', normalized)
 end
 
----@param key string
 ---@param raw_path string
 ---@param is_dir boolean
 ---@param base string?
 ---@return string
-function M._get_path(key, raw_path, is_dir, base)
-  if not M._initialized then
-    error('[dev-chronicles]: storage_paths.init() must be called before accessing paths.')
+function M._prepare_path(raw_path, is_dir, base)
+  local normalized = vim.fs.normalize(raw_path)
+  if vim.fn.isabsolutepath(normalized) == 1 then
+    return normalized
   end
 
-  if M._cache[key] then
-    return M._cache[key]
-  end
+  base = base or vim.fn.stdpath('data')
+  local resolved = vim.fs.joinpath(base, 'dev-chronicles', normalized)
 
-  local resolved = M._resolve_path(raw_path, base)
   local dir = is_dir and resolved or vim.fn.fnamemodify(resolved, ':h')
   vim.fn.mkdir(dir, 'p')
 
-  M._cache[key] = resolved
   return resolved
 end
 
 function M.get_log_file()
-  return M._get_path('log_file', M._storage_paths.log_file, false, vim.fn.stdpath('log'))
+  M._ensure_storage_paths()
+  local path = M._prepare_path(M._storage_paths.log_file, false, vim.fn.stdpath('log'))
+  M.get_log_file = function()
+    return path
+  end
+  return path
 end
 
 function M.get_data_file()
-  return M._get_path('data_file', M._storage_paths.data_file, false)
+  M._ensure_storage_paths()
+  local path = M._prepare_path(M._storage_paths.data_file, false)
+  M.get_data_file = function()
+    return path
+  end
+  return path
 end
 
 function M.get_backup_dir()
-  return M._get_path('backup_dir', M._storage_paths.backup_dir, true)
+  M._ensure_storage_paths()
+  local path = M._prepare_path(M._storage_paths.backup_dir, true)
+  M.get_backup_dir = function()
+    return path
+  end
+  return path
 end
 
 return M
