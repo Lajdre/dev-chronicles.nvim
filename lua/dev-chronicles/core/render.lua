@@ -4,6 +4,7 @@ local M = {}
 ---@return integer buffer, integer window
 function M.render(panel_data)
   local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
+  local colors = require('dev-chronicles.core.colors')
 
   local buf = vim.api.nvim_create_buf(false, true)
 
@@ -33,7 +34,7 @@ function M.render(panel_data)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, panel_data.lines)
 
   if panel_data.highlights then
-    require('dev-chronicles.core.colors').apply_highlights(buf, panel_data.highlights)
+    colors.apply_highlights(buf, panel_data.highlights)
   end
 
   ---@return chronicles.Panel.Context

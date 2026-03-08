@@ -1,21 +1,26 @@
-local M = {}
+local M = {
+  ---@type integer
+  _namespace = vim.api.nvim_create_namespace('dev-chronicles'),
+  ---@type table<string, chronicles.Options.HighlightDefinitions.Definition>
+  _lazy_standin_colors = {},
+  ---@type string[]
+  _lazy_standin_colors_keys = {},
+  ---@type table<string, boolean>
+  _highlights_cache = {},
+  ---@type boolean
+  _standin_initialized = false,
+  ---@type boolean
+  _defaults_initialized = false,
+}
 
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 
-M._namespace = vim.api.nvim_create_namespace('dev-chronicles')
+function M._ensure_standin_colors()
+  if M._standin_initialized then
+    return
+  end
 
----@type table<string, chronicles.Options.HighlightDefinitions.Definition>
-M._lazy_standin_colors = {}
-
----@type string[]
-M._lazy_standin_colors_keys = {}
-
----@type table<string, boolean>
-M._highlights_cache = {}
-
----@param default_highlights chronicles.Options.HighlightDefinitions
-function M.setup_colors(default_highlights)
-  local default_project_colors_definitions = {
+  local standin_colors = {
     { 'DevChroniclesRed', { fg = '#ff6b6b', bold = true } },
     { 'DevChroniclesBlue', { fg = '#5f91fd', bold = true } },
     { 'DevChroniclesGreen', { fg = '#95e1d3', bold = true } },
@@ -27,17 +32,27 @@ function M.setup_colors(default_highlights)
   }
 
   -- Preserve the order of colors
-  local tbl_idx = 0
-  for _, entry in ipairs(default_project_colors_definitions) do
-    local name, opts = entry[1], entry[2]
-    tbl_idx = tbl_idx + 1
-    M._lazy_standin_colors[name] = opts
-    M._lazy_standin_colors_keys[tbl_idx] = name
+  for i, entry in ipairs(standin_colors) do
+    local name, spec = entry[1], entry[2]
+    M._lazy_standin_colors[name] = spec
+    M._lazy_standin_colors_keys[i] = name
   end
 
-  for hl_name, hl_opts in pairs(default_highlights) do
-    vim.api.nvim_set_hl(0, hl_name, hl_opts)
+  M._standin_initialized = true
+end
+
+function M._ensure_default_highlights()
+  if M._defaults_initialized then
+    return
   end
+
+  local highlights = require('dev-chronicles.config').get_opts().highlights
+  for hl_name, hl_spec in pairs(highlights) do
+    vim.api.nvim_set_hl(0, hl_name, hl_spec)
+    M._highlights_cache[hl_name] = true
+  end
+
+  M._defaults_initialized = true
 end
 
 ---@param random_bars_coloring boolean
@@ -49,14 +64,15 @@ function M.closure_get_project_highlight(
   projects_sorted_ascending,
   n_projects
 )
-  local shuffle = require('dev-chronicles.utils').shuffle
+  M._ensure_standin_colors()
+  local utils = require('dev-chronicles.utils')
 
   local color_keys = M._lazy_standin_colors_keys
   local n_colors = #color_keys
   local color_index = 1
 
   if random_bars_coloring then
-    shuffle(color_keys)
+    utils.shuffle(color_keys)
   end
 
   ---@param project_hex_color? string
@@ -70,7 +86,7 @@ function M.closure_get_project_highlight(
     if random_bars_coloring then
       -- All colors were used
       if color_index > n_colors then
-        shuffle(color_keys)
+        utils.shuffle(color_keys)
         color_index = 1
       end
       hl_name = color_keys[color_index]
@@ -110,6 +126,7 @@ end
 ---@param hl_name string
 ---@return string
 function M.get_or_create_standin_highlight(hl_name)
+  M._ensure_standin_colors()
   if M._highlights_cache[hl_name] then
     return hl_name
   end
@@ -131,6 +148,7 @@ end
 ---@param col integer
 ---@param end_col integer
 function M.apply_highlight(buf, hl_name, line_idx, col, end_col)
+  M._ensure_default_highlights()
   hl_name = M.get_or_create_standin_highlight(hl_name)
   vim.api.nvim_buf_add_highlight(buf, M._namespace, hl_name, line_idx, col, end_col)
 end
@@ -141,6 +159,7 @@ end
 ---@param col integer
 ---@param end_col integer
 function M.apply_highlight_hex(buf, hex, line_idx, col, end_col)
+  M._ensure_default_highlights()
   local hl_name = M.get_or_create_hex_highlight(hex)
   vim.api.nvim_buf_add_highlight(buf, M._namespace, hl_name, line_idx, col, end_col)
 end
@@ -148,9 +167,11 @@ end
 ---@param buf integer
 ---@param highlights chronicles.Highlight[]
 function M.apply_highlights(buf, highlights)
+  M._ensure_default_highlights()
   local ns = M._namespace
+  local add_highlight = vim.api.nvim_buf_add_highlight
   for _, hl in ipairs(highlights) do
-    vim.api.nvim_buf_add_highlight(buf, ns, hl.hl_group, hl.line - 1, hl.col, hl.end_col)
+    add_highlight(buf, ns, hl.hl_group, hl.line - 1, hl.col, hl.end_col)
   end
 end
 
