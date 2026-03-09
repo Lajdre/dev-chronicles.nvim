@@ -29,6 +29,13 @@ function M._ensure_standin_colors()
     { 'DevChroniclesPurple', { fg = '#6c5ce7', bold = true } },
     { 'DevChroniclesOrange', { fg = '#ffa500', bold = true } },
     { 'DevChroniclesLightPurple', { fg = '#a29bfe', bold = true } },
+    { 'DevChroniclesCyan', { fg = '#37d7ff', bold = true } },
+    { 'DevChroniclesPink', { fg = '#ff79c6', bold = true } },
+    { 'DevChroniclesLime', { fg = '#a4e635', bold = true } },
+    { 'DevChroniclesAmber', { fg = '#ffbf00', bold = true } },
+    { 'DevChroniclesCoral', { fg = '#ff8a65', bold = true } },
+    { 'DevChroniclesTeal', { fg = '#2dd4bf', bold = true } },
+    { 'DevChroniclesSky', { fg = '#38bdf8', bold = true } },
   }
 
   -- Preserve the order of colors
