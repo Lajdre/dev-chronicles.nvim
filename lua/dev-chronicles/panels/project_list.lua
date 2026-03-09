@@ -7,7 +7,7 @@ local M = {
 local colors = require('dev-chronicles.core.colors')
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 local render = require('dev-chronicles.core.render')
-local session_ops = require('dev-chronicles.core.session_ops')
+local chronicles_data_ops = require('dev-chronicles.core.chronicles_data_ops')
 local notify = require('dev-chronicles.utils.notify')
 local utils = require('dev-chronicles.utils')
 
@@ -527,7 +527,7 @@ function M._confirm_choices(win, data)
           return
         end
 
-        session_ops.apply_changes_to_chronicles_data(data, M._changes)
+        chronicles_data_ops.apply_changes_to_chronicles_data(data, M._changes)
 
         require('dev-chronicles.core.state').set_changes(M._changes)
         M._changes = {}
