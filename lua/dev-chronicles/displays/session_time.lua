@@ -1,13 +1,13 @@
 local M = {}
 
 function M.display_session_time()
-  local format_time = require('dev-chronicles.core.time').format_time
+  local time = require('dev-chronicles.core.time')
   local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
   local _, session_active = require('dev-chronicles.api').get_session_info()
 
   local lines, width
   if session_active then
-    local session_time_str = ' ' .. format_time(session_active.session_time) .. ' '
+    local session_time_str = ' ' .. time.format_time(session_active.session_time) .. ' '
     local project_name = ' ' .. session_active.project_name .. ' '
     width = math.max(#session_time_str, #project_name)
 

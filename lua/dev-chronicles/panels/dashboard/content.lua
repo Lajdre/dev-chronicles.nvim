@@ -1,9 +1,9 @@
 local M = {}
 
 local common_content = require('dev-chronicles.panels.common.content')
-local format_time = require('dev-chronicles.core.time').format_time
+local time = require('dev-chronicles.core.time')
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
-local strings_utils = require('dev-chronicles.utils.strings')
+local string_utils = require('dev-chronicles.utils.strings')
 
 ---Adds 4 line header. Monster function -- TODO: make this not that bad
 ---@param lines string[]
@@ -35,7 +35,7 @@ function M.set_header_lines_hl(
   local total_time_opts = header_dashboard_type_opts.total_time
   local left_header = string.format(
     total_time_opts.format_str,
-    format_time(
+    time.format_time(
       total_period_time,
       total_time_opts.as_hours_max,
       total_time_opts.as_hours_min,
@@ -47,7 +47,7 @@ function M.set_header_lines_hl(
     and curr_session_time
     and does_include_curr_date
   then
-    left_header = left_header .. ' (' .. format_time(curr_session_time, true, false) .. ')'
+    left_header = left_header .. ' (' .. time.format_time(curr_session_time, true, false) .. ')'
   end
 
   local right_header = time_period_str
@@ -122,11 +122,11 @@ function M.set_header_lines_hl(
         - (bars_start_pos + total_bars_disp_width)
 
       local top_bars_str =
-        strings_utils.rep_with_sep(single_top_bar, n_projects_to_show, string.rep(' ', space_width))
+        string_utils.rep_with_sep(single_top_bar, n_projects_to_show, string.rep(' ', space_width))
       local top_bars_str_bytes = single_top_bar_bytes * n_projects_to_show
         + (n_projects_to_show - 1) * space_width
 
-      local bottom_bars_str = strings_utils.rep_with_sep(
+      local bottom_bars_str = string_utils.rep_with_sep(
         single_bottom_bar,
         n_projects_to_show,
         string.rep(' ', space_width)
@@ -313,7 +313,7 @@ function M.set_time_labels_above_bars_lines_hl(
       then
         strings.place_label_simple(
           global_time_labels_row,
-          format_time(
+          time.format_time(
             bar.global_project_time,
             global_time_labels_as_hours_max,
             global_time_labels_as_hours_min,
@@ -330,7 +330,7 @@ function M.set_time_labels_above_bars_lines_hl(
 
     strings.place_label_simple(
       time_labels_row,
-      format_time(
+      time.format_time(
         bar.project_time,
         time_labels_as_hours_max,
         time_labels_as_hours_min,

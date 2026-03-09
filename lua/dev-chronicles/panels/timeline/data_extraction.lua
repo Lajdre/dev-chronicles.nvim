@@ -2,9 +2,6 @@ local M = {}
 
 local common_data_extraction = require('dev-chronicles.panels.common.data_extraction')
 local notify = require('dev-chronicles.utils.notify')
-local get_project_color =
-  require('dev-chronicles.core.colors').closure_get_project_highlight(true, false, -1)
-local get_project_name = require('dev-chronicles.utils.strings').get_project_name
 
 ---@param data chronicles.ChroniclesData
 ---@param canonical_today_str string
@@ -435,9 +432,14 @@ end
 ---@param projects chronicles.ChroniclesData.ProjectData
 ---@return table<string, string>
 function M._construct_project_id_to_highlight(projects)
+  local string_utils = require('dev-chronicles.utils.strings')
+  local get_project_highlight =
+    require('dev-chronicles.core.colors').closure_get_project_highlight(true, false, -1)
+
   local project_id_to_highlight = {}
   for project_id, project_data in pairs(projects) do
-    project_id_to_highlight[get_project_name(project_id)] = get_project_color(project_data.color)
+    project_id_to_highlight[string_utils.get_project_name(project_id)] =
+      get_project_highlight(project_data.color)
   end
   return project_id_to_highlight
 end

@@ -5,7 +5,7 @@ local M = {}
 ---@return chronicles.Timeline.RowRepresentation
 function M.construct_row_representation(row_repr, bar_width)
   local notify = require('dev-chronicles.utils.notify')
-  local str_sub = require('dev-chronicles.utils.strings').str_sub
+  local string_utils = require('dev-chronicles.utils.strings')
 
   ---@type integer, integer
   local row_repr_codepoints, row_repr_display_width = vim.str_utfindex(row_repr), 0
@@ -18,7 +18,7 @@ function M.construct_row_representation(row_repr, bar_width)
   local row_bytes, tmp_row_bytes = 0, 0
 
   for i = 1, row_repr_codepoints do
-    local char = str_sub(row_repr, i, i)
+    local char = string_utils.str_sub(row_repr, i, i)
     tmp_row_chars[i] = char
 
     local char_display_width = vim.fn.strdisplaywidth(char)

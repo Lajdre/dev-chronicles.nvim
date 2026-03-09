@@ -3,9 +3,8 @@ local M = {}
 local common_content = require('dev-chronicles.panels.common.content')
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
 local strings = require('dev-chronicles.utils.strings')
-local format_time = require('dev-chronicles.core.time').format_time
-local get_or_create_hex_highlight =
-  require('dev-chronicles.core.colors').get_or_create_hex_highlight
+local time = require('dev-chronicles.core.time')
+local colors = require('dev-chronicles.core.colors')
 
 ---Adds 4 entries to the lines table.
 ---@param lines string[]
@@ -30,7 +29,7 @@ function M.set_header_lines_hl(
   local total_time_opts = header_timeline_type_opts.total_time
   local left_header = '│ '
     .. total_time_opts.format_str:format(
-      format_time(
+      time.format_time(
         timeline_data.total_period_time,
         total_time_opts.as_hours_max,
         total_time_opts.as_hours_min,
@@ -43,7 +42,7 @@ function M.set_header_lines_hl(
     and curr_session_time
     and timeline_data.does_include_curr_date
   then
-    left_header = left_header .. ' (' .. format_time(curr_session_time, true, false) .. ') │'
+    left_header = left_header .. ' (' .. time.format_time(curr_session_time, true, false) .. ') │'
   else
     left_header = left_header .. ' │'
   end
@@ -270,7 +269,7 @@ function M.set_time_labels_above_bars_lines_hl(
   local round_hours_ge_x = segment_time_labels_opts.round_hours_ge_x
   local color_like_top_segment_project = segment_time_labels_opts.color_like_top_segment_project
   local orig_highlight = segment_time_labels_opts.color
-      and get_or_create_hex_highlight(segment_time_labels_opts.color)
+      and colors.get_or_create_hex_highlight(segment_time_labels_opts.color)
     or DefaultColors.DevChroniclesAccent
   local highlight
 
@@ -290,7 +289,7 @@ function M.set_time_labels_above_bars_lines_hl(
 
       strings.place_label_simple(
         time_labels_row_arr,
-        format_time(total_segment_time, as_hours_max, as_hours_min, round_hours_ge_x),
+        time.format_time(total_segment_time, as_hours_max, as_hours_min, round_hours_ge_x),
         bar_left_margin_cols[index],
         bar_width,
         highlights,
@@ -487,7 +486,7 @@ function M.set_numeric_labels_lines_hl(
   local hide_when_empty = numeric_label_opts.hide_when_empty
   local color_like_top_segment_project = numeric_label_opts.color_like_top_segment_project
   local initial_highlight = numeric_label_opts.color
-      and get_or_create_hex_highlight(numeric_label_opts.color)
+      and colors.get_or_create_hex_highlight(numeric_label_opts.color)
     or DefaultColors.DevChroniclesAccent
   local highlight = initial_highlight
 
@@ -547,7 +546,7 @@ function M.set_abbr_labels_lines_hl(
   local hide_when_empty = abbr_label_opts.hide_when_empty
   local color_like_top_segment_project = abbr_label_opts.color_like_top_segment_project
   local initial_highlight = abbr_label_opts.color
-      and get_or_create_hex_highlight(abbr_label_opts.color)
+      and colors.get_or_create_hex_highlight(abbr_label_opts.color)
     or DefaultColors.DevChroniclesAccent
   local highlight = initial_highlight
 

@@ -47,8 +47,7 @@ end
 ---@param optimize_storage_for_x_days? integer
 ---@param data_file? string
 function M.clean_projects_day_data(optimize_storage_for_x_days, data_file)
-  local cleanup_project_day_data =
-    require('dev-chronicles.core.session_ops').cleanup_project_day_data
+  local session_ops = require('dev-chronicles.core.session_ops')
   local data_utils = require('dev-chronicles.utils.data')
   local plugin_opts = require('dev-chronicles.config').get_opts()
   local now_ts = os.time()
@@ -72,7 +71,7 @@ function M.clean_projects_day_data(optimize_storage_for_x_days, data_file)
   end
 
   for _, project_data in pairs(data.projects) do
-    cleanup_project_day_data(project_data, optimize_storage_for_x_days, now_ts)
+    session_ops.cleanup_project_day_data(project_data, optimize_storage_for_x_days, now_ts)
   end
 
   data_utils.save_data(data, data_file, plugin_opts.backup, now_ts)

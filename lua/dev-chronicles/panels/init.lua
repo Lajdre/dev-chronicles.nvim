@@ -16,18 +16,17 @@ function M.panel(panel_type, panel_subtype, panel_subtype_args, opts)
   local render = require('dev-chronicles.core.render')
   local PanelType = require('dev-chronicles.core.enums').PanelType
   local chronicles_data_ops = require('dev-chronicles.core.chronicles_data_ops')
-  local get_session_info = require('dev-chronicles.core.state').get_session_info
-  local update_chronicles_data_with_curr_session =
-    require('dev-chronicles.core.session_ops').update_chronicles_data_with_curr_session
+  local state = require('dev-chronicles.core.state')
+  local session_ops = require('dev-chronicles.core.session_ops')
 
   panel_subtype_args = panel_subtype_args or {}
 
-  local session_base, session_active = get_session_info(opts.extend_today_to_4am)
+  local session_base, session_active = state.get_session_info(opts.extend_today_to_4am)
   if session_active then
     if panel_type ~= PanelType.List then
       data = chronicles_data_ops.fork_chronicles_data_for_session(data, session_active.project_id)
     end
-    data = update_chronicles_data_with_curr_session(
+    data = session_ops.update_chronicles_data_with_curr_session(
       data,
       session_active,
       session_base,
