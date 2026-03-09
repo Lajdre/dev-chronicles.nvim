@@ -132,4 +132,15 @@ function M.validate_data(opts)
   notify.notify('Data has been validated. Data times are consistent.')
 end
 
+function M.clear_logs()
+  local notify = require('dev-chronicles.utils.notify')
+  local storage_paths = require('dev-chronicles.utils.storage_paths')
+  local ok, err = require('dev-chronicles.utils.data').clear_file(storage_paths.get_log_file())
+  if ok then
+    notify.notify('Logs cleared')
+  else
+    notify.error('Failed to clear logs: ' .. err)
+  end
+end
+
 return M

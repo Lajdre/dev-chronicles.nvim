@@ -75,9 +75,9 @@ function M._setup_the_command(opts)
       notify.notify('Projects cleaned')
     elseif first_arg == 'logs' then
       if args[2] == 'clear' then
-        require('dev-chronicles.displays.logs').clear_logs(storage_paths.get_log_file())
+        require('dev-chronicles.utils').clear_logs()
       else
-        require('dev-chronicles.displays.logs').display_logs(storage_paths.get_log_file())
+        require('dev-chronicles.displays.logs').display_logs()
       end
     elseif first_arg == 'validate' then
       require('dev-chronicles.utils').validate_data({ data_path = opts.data_file })

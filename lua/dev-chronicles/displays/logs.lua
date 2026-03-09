@@ -29,15 +29,4 @@ function M.display_logs(logs_path)
   })
 end
 
----@param logs_path string
-function M.clear_logs(logs_path)
-  local notify = require('dev-chronicles.utils.notify')
-  local ok, err = require('dev-chronicles.utils.data').clear_file(logs_path)
-  if ok then
-    notify.notify('Logs cleared')
-  else
-    notify.error('Failed to clear logs: ' .. err)
-  end
-end
-
 return M
