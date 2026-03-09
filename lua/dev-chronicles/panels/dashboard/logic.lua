@@ -2,7 +2,7 @@ local M = {}
 
 ---Unrolls provided bar representation pattern. Upon failure, returns
 ---the fallback bar representation consisting of `@`.
----@param bar_repr string[][]
+---@param bar_repr chronicles.Options.Dashboard.BarRepr
 ---@param bar_width integer
 ---@param bar_header_extends_by integer
 ---@param bar_footer_extends_by integer
@@ -14,40 +14,40 @@ function M.construct_bar_representation(
   bar_footer_extends_by
 )
   local notify = require('dev-chronicles.utils.notify')
-  local strings = require('dev-chronicles.utils.strings')
+  local string_utils = require('dev-chronicles.utils.strings')
+
+  if next(bar_repr.body) == nil then
+    notify.warn('bar_repr body cannot be empty. Falling back to @ bar representation.')
+    return M._construct_fallback_bar_representation(bar_width)
+  end
+
+  -- stylua: ignore
+  ---@type { key: string, rows: string[], width: integer }[]
+  local levels = {
+    { key = 'header', rows = bar_repr.header or {}, width = bar_width + bar_header_extends_by * 2 },
+    { key = 'body',   rows = bar_repr.body,         width = bar_width },
+    { key = 'footer', rows = bar_repr.footer or {}, width = bar_width + bar_footer_extends_by * 2 },
+  }
 
   ---@type chronicles.BarRepresentation|{}
   local bar_representation = {}
-  local keys = { 'header', 'body', 'footer' }
 
-  for i = 1, 3 do
+  for _, level in ipairs(levels) do
     ---@type string[]
     local realized_rows = {}
     ---@type integer[]
     local row_codepoint_counts = {}
     ---@type integer[][]
     local char_display_widths = {}
-    local width = bar_width
 
-    if i == 1 then
-      width = bar_width + (bar_header_extends_by * 2)
-    elseif i == 3 then
-      width = bar_width + (bar_footer_extends_by * 2)
-    elseif i == 2 and next(bar_repr[i]) == nil then
-      notify.warn(
-        'bar_repr BodyLevel (middle one) cannot be empty. Falling back to @ bar representation'
-      )
-      return M._construct_fallback_bar_representation(bar_width)
-    end
-
-    for j, row_repr in ipairs(bar_repr[i]) do
+    for j, row_repr in ipairs(level.rows) do
       ---@type integer[]
       local tmp_char_display_widths = {}
       local row_repr_display_width = 0
       local row_repr_codepoints = vim.str_utfindex(row_repr)
 
       for k = 1, row_repr_codepoints do
-        local char = strings.str_sub(row_repr, k, k)
+        local char = string_utils.str_sub(row_repr, k, k)
         local char_display_width = vim.fn.strdisplaywidth(char)
         row_repr_display_width = row_repr_display_width + char_display_width
         tmp_char_display_widths[k] = char_display_width
@@ -55,20 +55,20 @@ function M.construct_bar_representation(
 
       local n_to_fill_bar_width
 
-      if row_repr_display_width == width then
+      if row_repr_display_width == level.width then
         char_display_widths[j] = tmp_char_display_widths
         n_to_fill_bar_width = 1
       else
-        n_to_fill_bar_width = width / row_repr_display_width
+        n_to_fill_bar_width = level.width / row_repr_display_width
 
         if n_to_fill_bar_width ~= math.floor(n_to_fill_bar_width) then
           notify.warn(
             'Provided bar_repr row characters in '
-              .. keys[i]
+              .. level.key
               .. ' level: '
               .. row_repr
               .. ' cannot be smoothly expanded to width='
-              .. tostring(width)
+              .. tostring(level.width)
               .. ' given their display_width='
               .. tostring(row_repr_display_width)
               .. '. Falling back to @ bar representation'
@@ -91,7 +91,7 @@ function M.construct_bar_representation(
       row_codepoint_counts[j] = n_to_fill_bar_width * row_repr_codepoints
     end
 
-    bar_representation[keys[i]] = {
+    bar_representation[level.key] = {
       realized_rows = realized_rows,
       row_codepoint_counts = row_codepoint_counts,
       char_display_widths = char_display_widths,

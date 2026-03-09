@@ -50,7 +50,7 @@ function M.make_dashboard_section(opts)
     window_height = 0.8,
     window_width = 0.8,
     window_border = nil,
-    bar_repr_list = nil,
+    bar_reprs = nil,
     project_total_time = {
       as_hours_max = true,
       as_hours_min = true,

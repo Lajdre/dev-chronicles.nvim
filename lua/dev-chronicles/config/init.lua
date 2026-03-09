@@ -34,8 +34,8 @@ local defaults = {
     bar_header_extends_by = default_dashboard_vars.bar_header_extends_by,
     bar_footer_extends_by = default_dashboard_vars.bar_footer_extends_by,
     bar_spacing = default_dashboard_vars.bar_spacing,
-    bar_repr_list = {
-      { {}, { '▉' }, {} },
+    bar_reprs = {
+      { body = { '▉' } },
     },
     use_extra_default_dashboard_bar_reprs = true,
     dsh_days_today_force_precise_time = true,
@@ -169,8 +169,8 @@ local defaults = {
   },
   extra_default_dashboard_bar_reprs = {
     {
-      { ' ▼ ' },
-      {
+      header = { ' ▼ ' },
+      body = {
         '███████',
         ' █████ ',
         '  ███  ',
@@ -178,12 +178,11 @@ local defaults = {
         ' █████ ',
         '███████',
       },
-      {},
     },
     {
-      { ' ╔══▣◎▣══╗ ' },
-      { '║       ║' },
-      { ' ╚══▣◎▣══╝ ' },
+      header = { ' ╔══▣◎▣══╗ ' },
+      body = { '║       ║' },
+      footer = { ' ╚══▣◎▣══╝ ' },
     },
   },
 }
@@ -227,7 +226,7 @@ function M.setup(opts)
     and merged.dashboard.bar_spacing == default_dashboard_vars.bar_spacing
   then
     for _, extra_bar_repr in ipairs(merged.extra_default_dashboard_bar_reprs) do
-      table.insert(merged.dashboard.bar_repr_list, extra_bar_repr)
+      table.insert(merged.dashboard.bar_reprs, extra_bar_repr)
     end
   end
 

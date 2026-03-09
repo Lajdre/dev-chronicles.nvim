@@ -230,6 +230,12 @@
 -- -- Dashboard Opts
 -- -- --------------------------------------------
 
+---@class chronicles.Options.Dashboard.BarRepr
+---@field header? string[]
+---@field body string[]
+---@field footer? string[]
+---@field weight? number
+
 ---@class chronicles.Options.Dashboard.Header.TopProjects
 ---@field enable boolean
 ---@field extra_space_between_bars boolean
@@ -270,7 +276,7 @@
 ---@field window_height number
 ---@field window_width number
 ---@field window_border? string[]
----@field bar_repr_list? string[][][]
+---@field bar_reprs? chronicles.Options.Dashboard.BarRepr[]
 ---@field project_total_time chronicles.Options.Dashboard.Section.ProjectTotalTime
 
 ---@class chronicles.Options.Dashboard.Footer
@@ -281,7 +287,7 @@
 ---@field bar_header_extends_by integer
 ---@field bar_footer_extends_by integer
 ---@field bar_spacing integer
----@field bar_repr_list string[][][] All the bar representation patterns
+---@field bar_reprs chronicles.Options.Dashboard.BarRepr[]
 ---@field use_extra_default_dashboard_bar_reprs boolean
 ---@field dsh_days_today_force_precise_time boolean
 ---@field footer chronicles.Options.Dashboard.Footer
@@ -386,4 +392,4 @@
 ---@field backup chronicles.Options.Backup
 ---@field storage_paths chronicles.Options.StoragePaths
 ---@field runtime_opts { for_dev_state_override?: chronicles.SessionState, parsed_exclude_subdirs_relative_map?: table<string, boolean>} -- exclude_subdirs_relative as a map
----@field extra_default_dashboard_bar_reprs string[][][]
+---@field extra_default_dashboard_bar_reprs chronicles.Options.Dashboard.BarRepr[]
