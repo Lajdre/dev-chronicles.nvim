@@ -47,13 +47,13 @@
 ---@field elapsed_so_far? integer
 ---@field paused? boolean
 
----@class (exact) chronicles.Panel.Subtype.Args
+---@class chronicles.Panel.Subtype.Args
 ---@field start_offset? integer
 ---@field end_offset? integer
 ---@field start_date? string
 ---@field end_date? string
 
----@class (exact) chronicles.Dashboard.FinalProjectData
+---@class chronicles.Dashboard.FinalProjectData
 ---@field project_id string
 ---@field total_time integer
 ---@field last_worked integer
@@ -65,7 +65,7 @@
 
 ---@alias chronicles.Dashboard.FinalProjectDataMap table<string, chronicles.Dashboard.FinalProjectData>
 
----@class (exact) chronicles.Dashboard.Data
+---@class chronicles.Dashboard.Data
 ---@field global_time integer
 ---@field total_period_time integer
 ---@field final_project_data_arr? chronicles.Dashboard.FinalProjectData[]
@@ -74,7 +74,7 @@
 ---@field time_period_str string
 ---@field top_projects? chronicles.Dashboard.TopProjectsArray
 
----@class (exact) chronicles.Dashboard.BarData
+---@class chronicles.Dashboard.BarData
 ---@field project_name_tbl string[]
 ---@field project_time integer
 ---@field height  integer
@@ -85,12 +85,12 @@
 ---@field curr_bar_representation_index integer
 ---@field global_project_time integer
 
----@class (exact) chronicles.BarLevelRepresentation
+---@class chronicles.BarLevelRepresentation
 ---@field realized_rows string[]
 ---@field row_codepoint_counts integer[]
 ---@field char_display_widths integer[][]
 
----@class (exact) chronicles.BarRepresentation
+---@class chronicles.BarRepresentation
 ---@field header chronicles.BarLevelRepresentation
 ---@field body chronicles.BarLevelRepresentation
 ---@field footer chronicles.BarLevelRepresentation
@@ -174,7 +174,7 @@
 -- Dev Chronicles Data
 -- --------------------------------------------
 
----@class (exact) chronicles.ChroniclesData.ProjectData
+---@class chronicles.ChroniclesData.ProjectData
 ---@field total_time integer
 ---@field by_year table<string, {by_month: table<string, number>, total_time: integer}>
 ---@field by_day table<string, number>
@@ -185,7 +185,7 @@
 ---@field tags_map? table<string, any>
 ---@field color? string
 
----@class (exact) chronicles.ChroniclesData
+---@class chronicles.ChroniclesData
 ---@field global_time integer
 ---@field tracking_start integer
 ---@field last_data_write integer
