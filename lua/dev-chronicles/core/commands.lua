@@ -164,7 +164,7 @@ function M._setup_autocmds(opts)
   vim.api.nvim_create_autocmd('VimLeavePre', {
     group = group,
     callback = function()
-      require('dev-chronicles.core.session_ops').end_session(
+      require('dev-chronicles.core.state').end_session(
         require('dev-chronicles.utils.storage_paths').get_data_file(),
         opts.track_days,
         opts.min_session_time,

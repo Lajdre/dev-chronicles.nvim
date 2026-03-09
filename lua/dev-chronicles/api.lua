@@ -35,7 +35,7 @@ function M.finish_session(opts)
   local min_session_time = opts.min_session_time or plugin_opts.min_session_time
   local extend_today_to_4am = opts.extend_today_to_4am or plugin_opts.extend_today_to_4am
   local backup_opts = opts.backup or plugin_opts.backup
-  require('dev-chronicles.core.session_ops').end_session(
+  require('dev-chronicles.core.state').end_session(
     data_file,
     track_days,
     min_session_time,
