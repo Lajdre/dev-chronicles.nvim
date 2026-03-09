@@ -17,7 +17,6 @@ function M.panel(panel_type, panel_subtype, panel_subtype_args, opts)
   local PanelType = require('dev-chronicles.core.enums').PanelType
   local chronicles_data_ops = require('dev-chronicles.core.chronicles_data_ops')
   local state = require('dev-chronicles.core.state')
-  local session_ops = require('dev-chronicles.core.session_ops')
 
   panel_subtype_args = panel_subtype_args or {}
 
@@ -26,7 +25,7 @@ function M.panel(panel_type, panel_subtype, panel_subtype_args, opts)
     if panel_type ~= PanelType.List then
       data = chronicles_data_ops.fork_chronicles_data_for_session(data, session_active.project_id)
     end
-    data = session_ops.update_chronicles_data_with_curr_session(
+    data = chronicles_data_ops.update_chronicles_data_with_session_data(
       data,
       session_active,
       session_base,
