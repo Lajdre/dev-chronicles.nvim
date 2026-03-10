@@ -40,37 +40,37 @@ function M.construct_bar_representation(
     ---@type integer[][]
     local char_display_widths = {}
 
-    for j, row_repr in ipairs(level.rows) do
+    for j, row_spec in ipairs(level.rows) do
       ---@type integer[]
       local tmp_char_display_widths = {}
-      local row_repr_display_width = 0
-      local row_repr_codepoints = vim.str_utfindex(row_repr)
+      local row_spec_display_width = 0
+      local row_spec_codepoints = vim.str_utfindex(row_spec)
 
-      for k = 1, row_repr_codepoints do
-        local char = string_utils.str_sub(row_repr, k, k)
+      for k = 1, row_spec_codepoints do
+        local char = string_utils.str_sub(row_spec, k, k)
         local char_display_width = vim.fn.strdisplaywidth(char)
-        row_repr_display_width = row_repr_display_width + char_display_width
+        row_spec_display_width = row_spec_display_width + char_display_width
         tmp_char_display_widths[k] = char_display_width
       end
 
       local n_to_fill_bar_width
 
-      if row_repr_display_width == level.width then
+      if row_spec_display_width == level.width then
         char_display_widths[j] = tmp_char_display_widths
         n_to_fill_bar_width = 1
       else
-        n_to_fill_bar_width = level.width / row_repr_display_width
+        n_to_fill_bar_width = level.width / row_spec_display_width
 
         if n_to_fill_bar_width ~= math.floor(n_to_fill_bar_width) then
           notify.warn(
             'Provided bar_repr row characters in '
               .. level.key
               .. ' level: '
-              .. row_repr
+              .. row_spec
               .. ' cannot be smoothly expanded to width='
               .. tostring(level.width)
               .. ' given their display_width='
-              .. tostring(row_repr_display_width)
+              .. tostring(row_spec_display_width)
               .. '. Falling back to @ bar representation'
           )
           return M._construct_fallback_bar_representation(bar_width)
@@ -79,16 +79,16 @@ function M.construct_bar_representation(
         local char_display_widths_entry = {}
 
         -- The length of tmp_char_display_widths should always equal row_chars_codepoints
-        for k = 1, row_repr_codepoints * n_to_fill_bar_width do
+        for k = 1, row_spec_codepoints * n_to_fill_bar_width do
           char_display_widths_entry[k] =
-            tmp_char_display_widths[((k - 1) % row_repr_codepoints) + 1]
+            tmp_char_display_widths[((k - 1) % row_spec_codepoints) + 1]
         end
 
         char_display_widths[j] = char_display_widths_entry
       end
 
-      realized_rows[j] = row_repr:rep(n_to_fill_bar_width)
-      row_codepoint_counts[j] = n_to_fill_bar_width * row_repr_codepoints
+      realized_rows[j] = row_spec:rep(n_to_fill_bar_width)
+      row_codepoint_counts[j] = n_to_fill_bar_width * row_spec_codepoints
     end
 
     bar_representation[level.key] = {

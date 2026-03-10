@@ -175,7 +175,8 @@ function M._create_timeline_content(
     timeline_logic.cut_off_segments(timeline_data, n_segments, n_segments_to_keep)
   end
 
-  local row_repr = utils.get_random_from_tbl(timeline_type_opts.row_repr or timeline_opts.row_repr)
+  local row_repr =
+    utils.get_random_from_tbl(timeline_type_opts.row_reprs or timeline_opts.row_reprs)
   local row_representation =
     timeline_logic.construct_row_representation(row_repr, timeline_type_opts.bar_width)
 

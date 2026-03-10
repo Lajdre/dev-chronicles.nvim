@@ -1,6 +1,6 @@
 local M = {}
 
----@param row_repr string
+---@param row_repr chronicles.Options.Timeline.RowRepr
 ---@param bar_width integer
 ---@return chronicles.Timeline.RowRepresentation
 function M.construct_row_representation(row_repr, bar_width)
@@ -8,7 +8,7 @@ function M.construct_row_representation(row_repr, bar_width)
   local string_utils = require('dev-chronicles.utils.strings')
 
   ---@type integer, integer
-  local row_repr_codepoints, row_repr_display_width = vim.str_utfindex(row_repr), 0
+  local row_repr_codepoints, row_repr_display_width = vim.str_utfindex(row_repr.body), 0
   ---@type integer[], integer[]
   local row_char_display_widths, tmp_row_char_display_widths = {}, {}
   ---@type integer[], integer[]
@@ -18,7 +18,7 @@ function M.construct_row_representation(row_repr, bar_width)
   local row_bytes, tmp_row_bytes = 0, 0
 
   for i = 1, row_repr_codepoints do
-    local char = string_utils.str_sub(row_repr, i, i)
+    local char = string_utils.str_sub(row_repr.body, i, i)
     tmp_row_chars[i] = char
 
     local char_display_width = vim.fn.strdisplaywidth(char)
@@ -83,7 +83,7 @@ function M.construct_row_representation(row_repr, bar_width)
     end
   end
 
-  local realized_row = string.rep(row_repr, n_to_fill_bar_width)
+  local realized_row = string.rep(row_repr.body, n_to_fill_bar_width)
   local row_codepoint_count = row_repr_codepoints * n_to_fill_bar_width
 
   assert(

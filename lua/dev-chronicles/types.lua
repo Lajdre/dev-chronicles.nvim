@@ -301,8 +301,12 @@
 --- -- Timeline Opts
 --- -- --------------------------------------------
 
+---@class chronicles.Options.Timeline.RowRepr
+---@field body string
+---@field weight? number
+
 ---@class chronicles.Options.Timeline
----@field row_repr string[]
+---@field row_reprs chronicles.Options.Timeline.RowRepr[]
 ---@field timeline_days chronicles.Options.Timeline.Section
 ---@field timeline_months chronicles.Options.Timeline.Section
 ---@field timeline_years chronicles.Options.Timeline.Section
@@ -311,7 +315,7 @@
 ---@class chronicles.Options.Timeline.Section
 ---@field bar_width integer
 ---@field bar_spacing integer
----@field row_repr? string[]
+---@field row_reprs? chronicles.Options.Timeline.RowRepr[]
 ---@field n_by_default integer
 ---@field window_height integer
 ---@field window_width integer
@@ -393,4 +397,3 @@
 ---@field backup chronicles.Options.Backup
 ---@field storage_paths chronicles.Options.StoragePaths
 ---@field runtime_opts { for_dev_state_override?: chronicles.SessionState, parsed_exclude_subdirs_relative_map?: table<string, boolean>} -- exclude_subdirs_relative as a map
----@field extra_default_dashboard_bar_reprs chronicles.Options.Dashboard.BarRepr[]

@@ -68,7 +68,7 @@ function M.make_timeline_section(opts)
   local timeline_section_opts = {
     bar_width = 4,
     bar_spacing = 1,
-    row_repr = nil,
+    row_reprs = nil,
     n_by_default = 30,
     window_height = 0.85,
     window_width = 0.99,

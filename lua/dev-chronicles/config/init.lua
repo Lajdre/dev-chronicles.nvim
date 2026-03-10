@@ -104,7 +104,7 @@ local defaults = {
     },
   },
   timeline = {
-    row_repr = { '█' },
+    row_reprs = { { body = '█' } },
     timeline_days = section_helpers.make_timeline_section({
       n_by_default = 30,
       window_width = 0.85,
