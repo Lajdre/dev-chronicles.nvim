@@ -226,15 +226,17 @@
 ---@class chronicles.Options.Common.Header.TotalTime: chronicles.Options.Common.TotalTimeBase
 ---@field format_str string -- TODO: color not impl yet
 
+---@class chronicles.Options.Common.Weighted
+---@field weight? number
+
 -- -- --------------------------------------------
 -- -- Dashboard Opts
 -- -- --------------------------------------------
 
----@class chronicles.Options.Dashboard.BarRepr
+---@class chronicles.Options.Dashboard.BarRepr: chronicles.Options.Common.Weighted
 ---@field header? string[]
 ---@field body string[]
 ---@field footer? string[]
----@field weight? number
 
 ---@class chronicles.Options.Dashboard.Header.TopProjects
 ---@field enable boolean
@@ -301,9 +303,8 @@
 --- -- Timeline Opts
 --- -- --------------------------------------------
 
----@class chronicles.Options.Timeline.RowRepr
+---@class chronicles.Options.Timeline.RowRepr: chronicles.Options.Common.Weighted
 ---@field body string
----@field weight? number
 
 ---@class chronicles.Options.Timeline
 ---@field row_reprs chronicles.Options.Timeline.RowRepr[]

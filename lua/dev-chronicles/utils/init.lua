@@ -25,7 +25,7 @@ function M.unexpand(path)
   end
 end
 
----@generic T
+---@generic T: chronicles.Options.Common.Weighted
 ---@param table T[]
 ---@return T
 function M.get_random_from_tbl(table)
@@ -33,7 +33,9 @@ function M.get_random_from_tbl(table)
   local n_entries = #table
   local total = 0
   for i = 1, n_entries do
-    total = total + (table[i].weight or 1)
+    ---@type chronicles.Options.Common.Weighted
+    local entry = table[i]
+    total = total + (entry.weight or 1)
   end
 
   if total == n_entries then
@@ -43,7 +45,9 @@ function M.get_random_from_tbl(table)
   local r = math.random() * total
   local cumulative = 0
   for i = 1, n_entries do
-    cumulative = cumulative + (table[i].weight or 1)
+    ---@type chronicles.Options.Common.Weighted
+    local entry = table[i]
+    cumulative = cumulative + (entry.weight or 1)
     if r <= cumulative then
       return table[i]
     end
