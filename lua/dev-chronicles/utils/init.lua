@@ -27,7 +27,26 @@ end
 ---@param table T[]
 ---@return T
 function M.get_random_from_tbl(table)
-  return table[math.random(1, #table)]
+  local n_entries = #table
+  local total = 0
+  for i = 1, n_entries do
+    total = total + (table[i].weight or 1)
+  end
+
+  if total == n_entries then
+    return table[math.random(1, n_entries)]
+  end
+
+  local r = math.random() * total
+  local cumulative = 0
+  for i = 1, n_entries do
+    cumulative = cumulative + (table[i].weight or 1)
+    if r <= cumulative then
+      return table[i]
+    end
+  end
+
+  return table[n_entries]
 end
 
 ---Shuffles a table in-place
