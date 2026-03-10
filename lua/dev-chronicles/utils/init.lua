@@ -1,4 +1,6 @@
-local M = {}
+local M = {
+  _seeded_random = false,
+}
 
 ---Expand a path and ensure it ends with a slash
 ---@param path string
@@ -27,6 +29,7 @@ end
 ---@param table T[]
 ---@return T
 function M.get_random_from_tbl(table)
+  M._ensure_seeded()
   local n_entries = #table
   local total = 0
   for i = 1, n_entries do
@@ -52,9 +55,17 @@ end
 ---Shuffles a table in-place
 ---@param tbl any[]
 function M.shuffle(tbl)
+  M._ensure_seeded()
   for i = #tbl, 2, -1 do
     local j = math.random(i)
     tbl[i], tbl[j] = tbl[j], tbl[i]
+  end
+end
+
+function M._ensure_seeded()
+  if not M._seeded_random then
+    math.randomseed(os.time())
+    M._seeded_random = true
   end
 end
 
