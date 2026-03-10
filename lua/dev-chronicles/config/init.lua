@@ -84,6 +84,24 @@ local defaults = {
       window_width = 0.99,
       window_border = { '╳', '━', '╳', '┃', '╳', '━', '╳', '┃' },
     }),
+    extra_default_params_bar_reprs = {
+      {
+        header = { ' ▼ ' },
+        body = {
+          '███████',
+          ' █████ ',
+          '  ███  ',
+          '  ███  ',
+          ' █████ ',
+          '███████',
+        },
+      },
+      {
+        header = { ' ╔══▣◎▣══╗ ' },
+        body = { '║       ║' },
+        footer = { ' ╚══▣◎▣══╝ ' },
+      },
+    },
   },
   timeline = {
     row_repr = { '█' },
@@ -167,24 +185,6 @@ local defaults = {
     log_file = 'log.dev-chronicles.log',
     backup_dir = 'backup_dev-chronicles/',
   },
-  extra_default_dashboard_bar_reprs = {
-    {
-      header = { ' ▼ ' },
-      body = {
-        '███████',
-        ' █████ ',
-        '  ███  ',
-        '  ███  ',
-        ' █████ ',
-        '███████',
-      },
-    },
-    {
-      header = { ' ╔══▣◎▣══╗ ' },
-      body = { '║       ║' },
-      footer = { ' ╚══▣◎▣══╝ ' },
-    },
-  },
 }
 
 ---@param opts? chronicles.Options
@@ -225,7 +225,7 @@ function M.setup(opts)
     and merged.dashboard.bar_footer_extends_by == default_dashboard_vars.bar_footer_extends_by
     and merged.dashboard.bar_spacing == default_dashboard_vars.bar_spacing
   then
-    for _, extra_bar_repr in ipairs(merged.extra_default_dashboard_bar_reprs) do
+    for _, extra_bar_repr in ipairs(merged.dashboard.extra_default_params_bar_reprs) do
       table.insert(merged.dashboard.bar_reprs, extra_bar_repr)
     end
   end

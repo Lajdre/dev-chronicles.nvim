@@ -291,6 +291,7 @@
 ---@field use_extra_default_dashboard_bar_reprs boolean
 ---@field dsh_days_today_force_precise_time boolean
 ---@field footer chronicles.Options.Dashboard.Footer
+---@field extra_default_params_bar_reprs chronicles.Options.Dashboard.BarRepr[]
 ---@field dashboard_days chronicles.Options.Dashboard.Section
 ---@field dashboard_months chronicles.Options.Dashboard.Section
 ---@field dashboard_years chronicles.Options.Dashboard.Section
