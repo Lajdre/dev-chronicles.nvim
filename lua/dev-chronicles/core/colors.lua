@@ -75,6 +75,7 @@ function M.closure_get_project_highlight(random_coloring, projects_sorted_ascend
   local color_index = 1
 
   if random_coloring then
+    color_keys = vim.deepcopy(color_keys)
     utils.shuffle(color_keys)
   end
 
