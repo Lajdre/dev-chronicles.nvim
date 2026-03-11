@@ -108,6 +108,7 @@
 ---@field does_include_curr_date boolean
 ---@field time_period_str string
 ---@field project_id_to_highlight table<string, string>
+---@field sorted_project_ids string[]
 
 ---@class chronicles.Timeline.SegmentData
 ---@field day? string

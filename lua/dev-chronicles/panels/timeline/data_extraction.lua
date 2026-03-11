@@ -71,6 +71,8 @@ function M.get_timeline_data_days(
   local segments, len_segments = {}, 0
   local max_segment_time = 0
   local total_period_time = 0
+  ---@type table<string, number>
+  local project_times = {}
 
   if next(projects) ~= nil then
     for ts = start_ts, end_ts, DAY_SEC do
@@ -87,6 +89,7 @@ function M.get_timeline_data_days(
           total_segment_time = total_segment_time + day_time
           len_project_shares = len_project_shares + 1
           project_shares[len_project_shares] = { project_id = project_id, share = day_time }
+          project_times[project_id] = (project_times[project_id] or 0) + day_time
         end
       end
 
@@ -134,6 +137,7 @@ function M.get_timeline_data_days(
       period_indicator_opts
     ),
     project_id_to_highlight = M._construct_project_id_to_highlight(projects),
+    sorted_project_ids = M._get_sorted_project_ids(project_times),
   }
 end
 
@@ -184,11 +188,11 @@ function M.get_timeline_data_months(
   local segments, len_segments = {}, 0
   local max_segment_time = 0
   local total_period_time = 0
+  ---@type table<string, number>
+  local project_times = {}
 
   if next(projects) ~= nil then
-    local i = 0
     while true do
-      i = i + 1
       local year_str = string.format('%d', l_pointer_year)
       local month_str = string.format('%02d.%d', l_pointer_month, l_pointer_year)
 
@@ -204,6 +208,7 @@ function M.get_timeline_data_months(
           total_segment_time = total_segment_time + month_time
           len_project_shares = len_project_shares + 1
           project_shares[len_project_shares] = { project_id = project_id, share = month_time }
+          project_times[project_id] = (project_times[project_id] or 0) + month_time
         end
       end
 
@@ -268,6 +273,7 @@ function M.get_timeline_data_months(
       period_indicator_opts
     ),
     project_id_to_highlight = M._construct_project_id_to_highlight(projects),
+    sorted_project_ids = M._get_sorted_project_ids(project_times),
   }
 end
 
@@ -306,14 +312,14 @@ function M.get_timeline_data_years(
   local segments, len_segments = {}, 0
   local max_segment_time = 0
   local total_period_time = 0
+  ---@type table<string, number>
+  local project_times = {}
 
   local l_pointer_year, r_pointer_year =
     time_years.str_to_year(start_year), time_years.str_to_year(end_year)
 
   if next(projects) ~= nil then
-    local i = 0
     while true do
-      i = i + 1
       local year_str = tostring(l_pointer_year)
 
       ---@type chronicles.Timeline.SegmentData.ProjectShare[]
@@ -328,6 +334,7 @@ function M.get_timeline_data_years(
           total_segment_time = total_segment_time + year_time
           len_project_shares = len_project_shares + 1
           project_shares[len_project_shares] = { project_id = project_id, share = year_time }
+          project_times[project_id] = (project_times[project_id] or 0) + year_time
         end
       end
 
@@ -380,6 +387,7 @@ function M.get_timeline_data_years(
       period_indicator_opts
     ),
     project_id_to_highlight = M._construct_project_id_to_highlight(projects),
+    sorted_project_ids = M._get_sorted_project_ids(project_times),
   }
 end
 
@@ -390,21 +398,25 @@ function M.get_timeline_data_all(data, session_base)
   local time = require('dev-chronicles.core.time')
   local global_time = data.global_time
 
+  ---@type table<string, number>
+  local project_times = {}
+  for project_id, project_data in pairs(data.projects) do
+    project_times[project_id] = project_data.total_time
+  end
+
+  local sorted_project_ids = M._get_sorted_project_ids(project_times)
+
   ---@type chronicles.Timeline.SegmentData.ProjectShare[]
   local project_shares, len_project_shares = {}, 0
 
-  for project_id, project_data in pairs(data.projects) do
+  for i = #sorted_project_ids, 1, -1 do
+    local project_id = sorted_project_ids[i]
     len_project_shares = len_project_shares + 1
-    project_shares[len_project_shares] =
-      { project_id = project_id, share = project_data.total_time }
-  end
 
-  table.sort(project_shares, function(a, b)
-    return a.share < b.share
-  end)
-
-  for j = 1, len_project_shares do
-    project_shares[j].share = project_shares[j].share / global_time
+    project_shares[len_project_shares] = {
+      project_id = project_id,
+      share = project_times[project_id] / global_time,
+    }
   end
 
   ---@type chronicles.Timeline.SegmentData[]
@@ -426,6 +438,7 @@ function M.get_timeline_data_all(data, session_base)
     does_include_curr_date = true,
     time_period_str = time.get_time_period_str(data.tracking_start, session_base.now_ts),
     project_id_to_highlight = M._construct_project_id_to_highlight(data.projects),
+    sorted_project_ids = sorted_project_ids,
   }
 end
 
@@ -442,6 +455,26 @@ function M._construct_project_id_to_highlight(projects)
       get_project_highlight(project_data.color)
   end
   return project_id_to_highlight
+end
+
+---Extracts a sorted (descending by time) list of project IDs from a project->time map.
+---@param project_times table<string, number>
+---@return string[]
+function M._get_sorted_project_ids(project_times)
+  ---@type { project_id: string, time: number }[]
+  local entries, len = {}, 0
+  for project_id, time in pairs(project_times) do
+    len = len + 1
+    entries[len] = { project_id = project_id, time = time }
+  end
+  table.sort(entries, function(a, b)
+    return a.time > b.time
+  end)
+  local sorted_project_ids = {}
+  for i = 1, len do
+    sorted_project_ids[i] = entries[i].project_id
+  end
+  return sorted_project_ids
 end
 
 return M
