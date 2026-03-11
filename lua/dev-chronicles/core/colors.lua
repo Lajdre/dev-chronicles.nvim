@@ -62,15 +62,11 @@ function M._ensure_default_highlights()
   M._defaults_initialized = true
 end
 
----@param random_bars_coloring boolean
+---@param random_coloring boolean
 ---@param projects_sorted_ascending boolean
 ---@param n_projects integer
 ---@return fun(project_hex_color?: string): string
-function M.closure_get_project_highlight(
-  random_bars_coloring,
-  projects_sorted_ascending,
-  n_projects
-)
+function M.closure_get_project_highlight(random_coloring, projects_sorted_ascending, n_projects)
   M._ensure_standin_colors()
   local utils = require('dev-chronicles.utils')
 
@@ -78,7 +74,7 @@ function M.closure_get_project_highlight(
   local n_colors = #color_keys
   local color_index = 1
 
-  if random_bars_coloring then
+  if random_coloring then
     utils.shuffle(color_keys)
   end
 
@@ -86,11 +82,12 @@ function M.closure_get_project_highlight(
   ---@return string
   return function(project_hex_color)
     if project_hex_color then
+      color_index = color_index + 1
       return M.get_or_create_hex_highlight(project_hex_color)
     end
 
     local hl_name
-    if random_bars_coloring then
+    if random_coloring then
       -- All colors were used
       if color_index > n_colors then
         utils.shuffle(color_keys)

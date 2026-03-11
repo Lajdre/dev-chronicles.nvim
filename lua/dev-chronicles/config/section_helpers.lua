@@ -72,6 +72,7 @@ function M.make_timeline_section(opts)
     n_by_default = 30,
     window_height = 0.85,
     window_width = 0.99,
+    random_proj_coloring = false,
     header = {
       total_time = {
         as_hours_max = true,

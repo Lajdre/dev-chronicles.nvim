@@ -8,6 +8,7 @@ local notify = require('dev-chronicles.utils.notify')
 ---@param n_days_by_default integer
 ---@param period_indicator_opts chronicles.Options.Common.Header.PeriodIndicator
 ---@param abbr_labels_opts chronicles.Options.Timeline.Section.SegmentAbbrLabels
+---@param random_proj_coloring boolean
 ---@param optimize_storage_for_x_days integer
 ---@param start_offset? integer
 ---@param end_offset? integer
@@ -18,6 +19,7 @@ function M.get_timeline_data_days(
   n_days_by_default,
   period_indicator_opts,
   abbr_labels_opts,
+  random_proj_coloring,
   optimize_storage_for_x_days,
   start_offset,
   end_offset
@@ -122,6 +124,8 @@ function M.get_timeline_data_days(
     os.setlocale(orig_locale, 'time')
   end
 
+  local sorted_project_ids = M._get_sorted_project_ids(project_times)
+
   ---@type chronicles.Timeline.Data
   return {
     total_period_time = total_period_time,
@@ -136,8 +140,12 @@ function M.get_timeline_data_days(
       canonical_today_str,
       period_indicator_opts
     ),
-    project_id_to_highlight = M._construct_project_id_to_highlight(projects),
-    sorted_project_ids = M._get_sorted_project_ids(project_times),
+    project_id_to_highlight = M._construct_project_id_to_highlight(
+      projects,
+      sorted_project_ids,
+      random_proj_coloring
+    ),
+    sorted_project_ids = sorted_project_ids,
   }
 end
 
@@ -146,6 +154,7 @@ end
 ---@param n_months_by_default integer
 ---@param period_indicator_opts chronicles.Options.Common.Header.PeriodIndicator
 ---@param abbr_labels_opts chronicles.Options.Timeline.Section.SegmentAbbrLabels
+---@param random_proj_coloring boolean
 ---@param start_month? string: MM.YYYY
 ---@param end_month? string: MM.YYYY
 ---@return chronicles.Timeline.Data?
@@ -155,6 +164,7 @@ function M.get_timeline_data_months(
   n_months_by_default,
   period_indicator_opts,
   abbr_labels_opts,
+  random_proj_coloring,
   start_month,
   end_month
 )
@@ -255,6 +265,8 @@ function M.get_timeline_data_months(
     os.setlocale(orig_locale, 'time')
   end
 
+  local sorted_project_ids = M._get_sorted_project_ids(project_times)
+
   ---@type chronicles.Timeline.Data
   return {
     total_period_time = total_period_time,
@@ -272,8 +284,12 @@ function M.get_timeline_data_months(
       session_base.canonical_today_str,
       period_indicator_opts
     ),
-    project_id_to_highlight = M._construct_project_id_to_highlight(projects),
-    sorted_project_ids = M._get_sorted_project_ids(project_times),
+    project_id_to_highlight = M._construct_project_id_to_highlight(
+      projects,
+      sorted_project_ids,
+      random_proj_coloring
+    ),
+    sorted_project_ids = sorted_project_ids,
   }
 end
 
@@ -281,6 +297,7 @@ end
 ---@param session_base chronicles.SessionBase
 ---@param n_years_by_default integer
 ---@param period_indicator_opts chronicles.Options.Common.Header.PeriodIndicator
+---@param random_proj_coloring boolean
 ---@param start_year? string: YYYY
 ---@param end_year? string: YYYY
 ---@return chronicles.Timeline.Data?
@@ -289,6 +306,7 @@ function M.get_timeline_data_years(
   session_base,
   n_years_by_default,
   period_indicator_opts,
+  random_proj_coloring,
   start_year,
   end_year
 )
@@ -369,6 +387,8 @@ function M.get_timeline_data_years(
     end
   end
 
+  local sorted_project_ids = M._get_sorted_project_ids(project_times)
+
   ---@type chronicles.Timeline.Data
   return {
     total_period_time = total_period_time,
@@ -386,15 +406,20 @@ function M.get_timeline_data_years(
       session_base.canonical_today_str,
       period_indicator_opts
     ),
-    project_id_to_highlight = M._construct_project_id_to_highlight(projects),
-    sorted_project_ids = M._get_sorted_project_ids(project_times),
+    project_id_to_highlight = M._construct_project_id_to_highlight(
+      projects,
+      sorted_project_ids,
+      random_proj_coloring
+    ),
+    sorted_project_ids = sorted_project_ids,
   }
 end
 
 ---@param data chronicles.ChroniclesData
 ---@param session_base chronicles.SessionBase
+---@param random_proj_coloring boolean
 ---@return chronicles.Timeline.Data?
-function M.get_timeline_data_all(data, session_base)
+function M.get_timeline_data_all(data, session_base, random_proj_coloring)
   local time = require('dev-chronicles.core.time')
   local global_time = data.global_time
 
@@ -437,20 +462,28 @@ function M.get_timeline_data_all(data, session_base)
     max_segment_time = global_time,
     does_include_curr_date = true,
     time_period_str = time.get_time_period_str(data.tracking_start, session_base.now_ts),
-    project_id_to_highlight = M._construct_project_id_to_highlight(data.projects),
+    project_id_to_highlight = M._construct_project_id_to_highlight(
+      data.projects,
+      sorted_project_ids,
+      random_proj_coloring
+    ),
     sorted_project_ids = sorted_project_ids,
   }
 end
 
 ---@param projects chronicles.ChroniclesData.ProjectData
+---@param sorted_project_ids string[]
+---@param random_proj_coloring boolean
 ---@return table<string, string>
-function M._construct_project_id_to_highlight(projects)
-  local get_project_highlight =
-    require('dev-chronicles.core.colors').closure_get_project_highlight(true, false, -1)
-
+function M._construct_project_id_to_highlight(projects, sorted_project_ids, random_proj_coloring)
+  local get_project_highlight = require('dev-chronicles.core.colors').closure_get_project_highlight(
+    random_proj_coloring,
+    false,
+    #sorted_project_ids
+  )
   local project_id_to_highlight = {}
-  for project_id, project_data in pairs(projects) do
-    project_id_to_highlight[project_id] = get_project_highlight(project_data.color)
+  for _, project_id in ipairs(sorted_project_ids) do
+    project_id_to_highlight[project_id] = get_project_highlight(projects[project_id].color)
   end
   return project_id_to_highlight
 end

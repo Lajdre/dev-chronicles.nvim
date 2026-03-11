@@ -321,6 +321,7 @@
 ---@field n_by_default integer
 ---@field window_height integer
 ---@field window_width integer
+---@field random_proj_coloring boolean
 ---@field header chronicles.Options.Timeline.Header
 ---@field segment_time_labels chronicles.Options.Timeline.Section.SegmentTimeLabels
 ---@field segment_numeric_labels chronicles.Options.Timeline.Section.SegmentNumericLabels

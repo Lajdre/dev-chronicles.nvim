@@ -40,6 +40,7 @@ function M.timeline(data, panel_subtype, panel_subtype_args, opts, session_base,
       timeline_type_options.n_by_default,
       timeline_type_options.header.period_indicator,
       timeline_type_options.segment_abbr_labels,
+      timeline_type_options.random_proj_coloring,
       opts.track_days.optimize_storage_for_x_days,
       start_offset,
       end_offset
@@ -52,6 +53,7 @@ function M.timeline(data, panel_subtype, panel_subtype_args, opts, session_base,
       timeline_type_options.n_by_default,
       timeline_type_options.header.period_indicator,
       timeline_type_options.segment_abbr_labels,
+      timeline_type_options.random_proj_coloring,
       panel_subtype_args.start_date,
       panel_subtype_args.end_date
     )
@@ -62,12 +64,17 @@ function M.timeline(data, panel_subtype, panel_subtype_args, opts, session_base,
       session_base,
       timeline_type_options.n_by_default,
       timeline_type_options.header.period_indicator,
+      timeline_type_options.random_proj_coloring,
       panel_subtype_args.start_date,
       panel_subtype_args.end_date
     )
   elseif panel_subtype == PanelSubtype.All then
     timeline_type_options = opts.timeline.timeline_all
-    timeline_data = timeline_data_extraction.get_timeline_data_all(data, session_base)
+    timeline_data = timeline_data_extraction.get_timeline_data_all(
+      data,
+      session_base,
+      timeline_type_options.random_proj_coloring
+    )
   else
     notify.warn(
       string.format(
