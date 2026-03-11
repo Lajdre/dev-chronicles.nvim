@@ -2,7 +2,7 @@ local M = {}
 
 local common_content = require('dev-chronicles.panels.common.content')
 local DefaultColors = require('dev-chronicles.core.enums').DefaultColors
-local strings = require('dev-chronicles.utils.strings')
+local string_utils = require('dev-chronicles.utils.strings')
 local time = require('dev-chronicles.core.time')
 local colors = require('dev-chronicles.core.colors')
 
@@ -59,15 +59,15 @@ function M.set_header_lines_hl(
   local project_prefix_bytes = #project_prefix
   local project_prefix_disp_width = vim.fn.strdisplaywidth(project_prefix)
 
-  local min_project_str_pad_ammount = 1
+  local min_project_entries_pad = 1
   local spacing_between_projects = 1
 
   local extra_pad_left = math.max(0, right_header_disp_width - left_header_disp_width)
   local extra_pad_right = math.max(0, left_header_disp_width - right_header_disp_width)
 
   local max_proj_names_disp_width = math.min(
-    (win_width - (min_project_str_pad_ammount * 2)) - 2 * left_header_disp_width,
-    (win_width - (min_project_str_pad_ammount * 2)) - 2 * right_header_disp_width
+    (win_width - (min_project_entries_pad * 2)) - 2 * left_header_disp_width,
+    (win_width - (min_project_entries_pad * 2)) - 2 * right_header_disp_width
   )
 
   if max_proj_names_disp_width <= 0 then
@@ -86,43 +86,81 @@ function M.set_header_lines_hl(
     return len_lines
   end
 
-  local header1_projects_list = {}
-  local len_header1_projects_list_str = 0
-  local header1_proj_entries_bytes = {}
-  local header1_proj_entries_highlights = {}
+  ---@class chronicles.Timeline.HeaderEntry
+  ---@field projects_list any[]
+  ---@field proj_entries_bytes integer[]
+  ---@field proj_entries_highlights any[]
+  ---@field len integer
+  ---@field max_len integer
+  ---@field left_str string
+  ---@field right_str string
+  ---@field balance_pad_left integer
+  ---@field balance_pad_right integer
+  ---@field left_str_bytes integer
 
-  local header2_projects_list = {}
-  local len_header2_projects_list_str = 0
-  local header2_proj_entries_bytes = {}
-  local header2_proj_entries_highlights = {}
+  ---@type chronicles.Timeline.HeaderEntry[]
+  local header_lines = {
+    {
+      projects_list = {},
+      proj_entries_bytes = {},
+      proj_entries_highlights = {},
+      len = 0,
+      max_len = max_proj_names_disp_width,
+      left_str = left_header,
+      right_str = right_header,
+      balance_pad_left = extra_pad_left,
+      balance_pad_right = extra_pad_right,
+      left_str_bytes = #left_header,
+    },
+    {
+      projects_list = {},
+      proj_entries_bytes = {},
+      proj_entries_highlights = {},
+      len = 0,
+      max_len = max_proj_names_disp_width,
+      left_str = decorator_left,
+      right_str = decorator_right,
+      balance_pad_left = extra_pad_left,
+      balance_pad_right = extra_pad_right,
+      left_str_bytes = #decorator_left,
+    },
+    {
+      projects_list = {},
+      proj_entries_bytes = {},
+      proj_entries_highlights = {},
+      len = 0,
+      max_len = win_width - (min_project_entries_pad * 2),
+      left_str = '',
+      right_str = '',
+      balance_pad_left = 0,
+      balance_pad_right = 0,
+      left_str_bytes = 0,
+    },
+  }
 
-  for project_id, highlight in pairs(timeline_data.project_id_to_highlight) do
-    local entry_disp_width = vim.fn.strdisplaywidth(project_id) + project_prefix_disp_width
-    local header1_entry_disp_width = entry_disp_width
-      + (len_header1_projects_list_str > 0 and spacing_between_projects or 0)
+  local project_id_to_highlight = timeline_data.project_id_to_highlight
+  local n_header_lines = #header_lines
+  local current_header_line = 1
 
-    if len_header1_projects_list_str + header1_entry_disp_width <= max_proj_names_disp_width then
-      len_header1_projects_list_str = len_header1_projects_list_str + header1_entry_disp_width
-      table.insert(header1_projects_list, project_prefix .. project_id)
-      table.insert(header1_proj_entries_bytes, #project_id + project_prefix_bytes)
-      table.insert(header1_proj_entries_highlights, highlight)
-    else
-      local header2_entry_disp_width = entry_disp_width
-        + (len_header2_projects_list_str > 0 and spacing_between_projects or 0)
+  for _, project_id in ipairs(timeline_data.sorted_project_ids) do
+    local project_name = string_utils.get_project_name(project_id)
+    local entry_disp_width = vim.fn.strdisplaywidth(project_name) + project_prefix_disp_width
 
-      if len_header2_projects_list_str + header2_entry_disp_width <= max_proj_names_disp_width then
-        len_header2_projects_list_str = len_header2_projects_list_str + header2_entry_disp_width
-        table.insert(header2_projects_list, project_prefix .. project_id)
-        table.insert(header2_proj_entries_bytes, #project_id + project_prefix_bytes)
-        table.insert(header2_proj_entries_highlights, highlight)
+    while current_header_line <= n_header_lines do
+      local header_line = header_lines[current_header_line]
+      local total_width = entry_disp_width + (header_line.len > 0 and spacing_between_projects or 0)
+
+      if header_line.len + total_width <= header_line.max_len then
+        header_line.len = header_line.len + total_width
+        table.insert(header_line.projects_list, project_prefix .. project_name)
+        table.insert(header_line.proj_entries_bytes, #project_name + project_prefix_bytes)
+        table.insert(header_line.proj_entries_highlights, project_id_to_highlight[project_id])
+        break
+      else
+        current_header_line = current_header_line + 1
       end
     end
   end
-
-  local header1_projects_list_str =
-    table.concat(header1_projects_list, (' '):rep(spacing_between_projects))
-  local header2_projects_list_str =
-    table.concat(header2_projects_list, (' '):rep(spacing_between_projects))
 
   local function calculate_extra_padding(total_width, content_width)
     local extra = total_width - content_width
@@ -134,100 +172,79 @@ function M.set_header_lines_hl(
     return left, right
   end
 
-  local extra_pad_left_header1, extra_pad_right_header1 =
-    calculate_extra_padding(max_proj_names_disp_width, len_header1_projects_list_str)
+  local spacing_str = (' '):rep(spacing_between_projects)
+  local pad_str = (' '):rep(min_project_entries_pad)
 
-  local extra_pad_left_header2, extra_pad_right_header2 =
-    calculate_extra_padding(max_proj_names_disp_width, len_header2_projects_list_str)
+  for index, header_line in ipairs(header_lines) do
+    if index > 2 and header_line.len == 0 then
+      len_lines = len_lines + 1
+      lines[len_lines] = ''
+      break
+    end
 
-  local header1 = left_header
-    .. (' '):rep(min_project_str_pad_ammount)
-    .. (' '):rep(extra_pad_left)
-    .. (' '):rep(extra_pad_left_header1)
-    .. header1_projects_list_str
-    .. (' '):rep(extra_pad_right_header1)
-    .. (' '):rep(extra_pad_right)
-    .. (' '):rep(min_project_str_pad_ammount)
-    .. right_header
-  local header2 = decorator_left
-    .. (' '):rep(min_project_str_pad_ammount)
-    .. (' '):rep(extra_pad_left)
-    .. (' '):rep(extra_pad_left_header2)
-    .. header2_projects_list_str
-    .. (' '):rep(extra_pad_right_header2)
-    .. (' '):rep(extra_pad_right)
-    .. (' '):rep(min_project_str_pad_ammount)
-    .. decorator_right
+    local projects_str = table.concat(header_line.projects_list, spacing_str)
+    local center_pad_left, center_pad_right =
+      calculate_extra_padding(header_line.max_len, header_line.len)
 
-  local function apply_header_highlights(
-    line_num,
-    left_header_bytes,
-    proj_entries_bytes,
-    proj_entries_highlights,
-    extra_pad_left_side,
-    extra_pad_right_side
-  )
-    table.insert(highlights, {
-      line = line_num,
-      col = 0,
-      end_col = left_header_bytes,
-      hl_group = DefaultColors.DevChroniclesAccent,
-    })
+    local line = header_line.left_str
+      .. pad_str
+      .. (' '):rep(header_line.balance_pad_left)
+      .. (' '):rep(center_pad_left)
+      .. projects_str
+      .. (' '):rep(center_pad_right)
+      .. (' '):rep(header_line.balance_pad_right)
+      .. pad_str
+      .. header_line.right_str
 
-    local rolling_col = left_header_bytes
-      + min_project_str_pad_ammount
-      + extra_pad_left
-      + extra_pad_left_side
+    len_lines = len_lines + 1
+    lines[len_lines] = line
 
-    local len_proj_entries_bytes = #proj_entries_bytes
-    for index, entry_bytes in ipairs(proj_entries_bytes) do
+    -- Left decoration highlight
+    if header_line.left_str_bytes > 0 then
       table.insert(highlights, {
-        line = line_num,
+        line = len_lines,
+        col = 0,
+        end_col = header_line.left_str_bytes,
+        hl_group = DefaultColors.DevChroniclesAccent,
+      })
+    end
+
+    -- Project entries highlights
+    local rolling_col = header_line.left_str_bytes
+      + min_project_entries_pad
+      + header_line.balance_pad_left
+      + center_pad_left
+
+    local len_entries = #header_line.proj_entries_bytes
+    for i, entry_bytes in ipairs(header_line.proj_entries_bytes) do
+      table.insert(highlights, {
+        line = len_lines,
         col = rolling_col,
         end_col = rolling_col + entry_bytes,
-        hl_group = proj_entries_highlights[index],
+        hl_group = header_line.proj_entries_highlights[i],
       })
 
       rolling_col = rolling_col + entry_bytes
-      if index < len_proj_entries_bytes then
+      if i < len_entries then
         rolling_col = rolling_col + spacing_between_projects
       end
     end
 
-    rolling_col = rolling_col + extra_pad_right_side + extra_pad_right + min_project_str_pad_ammount
+    -- Right decoration highlight
+    if #header_line.right_str > 0 then
+      rolling_col = rolling_col
+        + center_pad_right
+        + header_line.balance_pad_right
+        + min_project_entries_pad
 
-    table.insert(highlights, {
-      line = line_num,
-      col = rolling_col,
-      end_col = -1,
-      hl_group = DefaultColors.DevChroniclesAccent,
-    })
+      table.insert(highlights, {
+        line = len_lines,
+        col = rolling_col,
+        end_col = -1,
+        hl_group = DefaultColors.DevChroniclesAccent,
+      })
+    end
   end
-
-  len_lines = len_lines + 1
-  lines[len_lines] = header1
-  apply_header_highlights(
-    len_lines,
-    #left_header,
-    header1_proj_entries_bytes,
-    header1_proj_entries_highlights,
-    extra_pad_left_header1,
-    extra_pad_right_header1
-  )
-
-  len_lines = len_lines + 1
-  lines[len_lines] = header2
-  apply_header_highlights(
-    len_lines,
-    #decorator_left,
-    header2_proj_entries_bytes,
-    header2_proj_entries_highlights,
-    extra_pad_left_header2,
-    extra_pad_right_header2
-  )
-
-  len_lines = len_lines + 1
-  lines[len_lines] = ''
 
   len_lines = common_content.set_hline_lines_hl(
     lines,
@@ -287,7 +304,7 @@ function M.set_time_labels_above_bars_lines_hl(
         end
       end
 
-      strings.place_label_simple(
+      string_utils.place_label_simple(
         time_labels_row_arr,
         time.format_time(total_segment_time, as_hours_max, as_hours_min, round_hours_ge_x),
         bar_left_margin_cols[index],
@@ -503,7 +520,7 @@ function M.set_numeric_labels_lines_hl(
       end
 
       local date_label = segment_data.day or segment_data.month or segment_data.year
-      strings.place_label_simple(
+      string_utils.place_label_simple(
         labels_row_arr,
         date_label,
         bar_left_margin_cols[index],
@@ -550,7 +567,7 @@ function M.set_abbr_labels_lines_hl(
     or DefaultColors.DevChroniclesAccent
   local highlight = initial_highlight
 
-  local place_label = strings.closure_place_label(abbr_row_arr, highlights, len_lines)
+  local place_label = string_utils.closure_place_label(abbr_row_arr, highlights, len_lines)
 
   for index, segment_data in ipairs(timeline_data.segments) do
     if not hide_when_empty or segment_data.total_segment_time > 0 then
