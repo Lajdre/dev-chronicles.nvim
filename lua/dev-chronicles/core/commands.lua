@@ -80,9 +80,16 @@ function M._setup_the_command(opts)
         require('dev-chronicles.displays.logs').display_logs()
       end
     elseif first_arg == 'validate' then
-      require('dev-chronicles.utils').validate_data({ data_path = opts.data_file })
-    elseif first_arg == 'timeline' then
-      if args[2] == 'months' then
+      require('dev-chronicles.utils').validate_data({ data_path = storage_paths.get_data_file() })
+    elseif first_arg == 'timeline' or first_arg == 'tl' then
+      if args[2] == 'days' then
+        api.panel(
+          enums.PanelType.Timeline,
+          enums.PanelSubtype.Days,
+          { start_offset = tonumber(args[3]), end_offset = tonumber(args[4]) },
+          opts
+        )
+      elseif args[2] == 'months' then
         api.panel(
           enums.PanelType.Timeline,
           enums.PanelSubtype.Months,
@@ -108,6 +115,15 @@ function M._setup_the_command(opts)
       end
     elseif first_arg == 'pause' then
       require('dev-chronicles.displays.paused').display_pause(opts.extend_today_to_4am)
+    elseif first_arg == 'showcase' then
+      if args[2] == 'months' then
+        require('dev-chronicles.displays.showcase').display_showcase(
+          opts,
+          enums.PanelSubtype.Months
+        )
+      else
+        require('dev-chronicles.displays.showcase').display_showcase(opts, enums.PanelSubtype.Days)
+      end
     else
       notify.notify(
         'Usage: :DevChronicles [all | days [start_offset [end_offset]] |'
