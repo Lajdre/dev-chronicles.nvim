@@ -24,11 +24,11 @@ local defaults = {
   sort_tracked_parent_dirs = false,
   differentiate_projects_by_folder_not_path = true,
   min_session_time = 15,
+  extend_today_to_4am = true,
   track_days = {
     enable = true,
     optimize_storage_for_x_days = 30,
   },
-  extend_today_to_4am = true,
   dashboard = {
     bar_width = default_dashboard_vars.bar_width,
     bar_header_extends_by = default_dashboard_vars.bar_header_extends_by,
@@ -213,7 +213,7 @@ function M.setup(opts)
   local function handle_paths_tbl_field(path_field_key, sort)
     local paths_tbl_field = merged[path_field_key]
     for i = 1, #paths_tbl_field do
-      paths_tbl_field[i] = utils.expand(paths_tbl_field[i])
+      paths_tbl_field[i] = utils.normalize_path(paths_tbl_field[i])
     end
     if sort then
       table.sort(paths_tbl_field, function(a, b)
@@ -231,7 +231,7 @@ function M.setup(opts)
     ---@type table<string, boolean>
     local parsed_exclude_subdirs_relative_map = {}
     for _, subdir in ipairs(merged.exclude_subdirs_relative) do
-      parsed_exclude_subdirs_relative_map[utils.expand(subdir)] = true
+      parsed_exclude_subdirs_relative_map[utils.normalize_path(subdir)] = true
     end
     merged.runtime_opts.parsed_exclude_subdirs_relative_map = parsed_exclude_subdirs_relative_map
   end

@@ -1,28 +1,31 @@
 local M = {
+  _is_windows = vim.fn.has('win32') == 1,
   _seeded_random = false,
 }
 
----Expand a path and ensure it ends with a slash
+---Normalize a path and ensure it ends with a slash. '/' will output '//'.
 ---@param path string
 ---@return string
-function M.expand(path)
-  local expanded = vim.fn.expand(path)
-  if expanded:sub(-1) ~= '/' then
-    return expanded .. '/'
+function M.normalize_path(path)
+  local normalized = vim.fs.normalize(path) .. '/'
+  if M._is_windows then
+    normalized = normalized:lower()
   end
-  return expanded
+  return normalized
 end
 
----If the `path` contains the home directory, replace it with `~`
+---If the `path` is inside the home directory, replace that prefix with `~`.
 ---@param path string
 ---@return string
-function M.unexpand(path)
-  local home = vim.uv.os_homedir()
-  if path:sub(1, #home) == home then
-    return '~' .. path:sub(#home + 1)
-  else
-    return path
+function M.unexpand_path(path)
+  local normalized_path = M.normalize_path(path)
+  local home = M.normalize_path(vim.uv.os_homedir())
+
+  if normalized_path:sub(1, #home) == home then
+    return '~' .. normalized_path:sub(#home)
   end
+
+  return normalized_path
 end
 
 ---@generic T: chronicles.Options.Common.Weighted

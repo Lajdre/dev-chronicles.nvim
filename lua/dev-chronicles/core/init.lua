@@ -5,16 +5,16 @@ function M.init(opts)
   require('dev-chronicles.core.commands').setup_commands(opts)
 end
 
----Returns the id of the project if the supplied cwd should be tracked,
----otherwise nil. Assumes all paths are absolute and expanded, and all dirs end
----with a slash.
+---Returns the id and name of the project if the supplied cwd should be
+---tracked, otherwise nil. Assumes all paths are absolute and expanded, and all
+---dirs end with a slash.
 ---@param cwd string
 ---@param tracked_parent_dirs string[]
 ---@param tracked_dirs string[]
 ---@param exclude_dirs_absolute string[]
 ---@param parsed_exclude_subdirs_relative_map table<string, boolean>
 ---@param differentiate_projects_by_folder_not_path boolean
----@return string?, string?
+---@return string?, string?: id, name
 function M.is_project(
   cwd,
   tracked_parent_dirs,
@@ -23,12 +23,10 @@ function M.is_project(
   parsed_exclude_subdirs_relative_map,
   differentiate_projects_by_folder_not_path
 )
-  local unexpand = require('dev-chronicles.utils').unexpand
-  local get_project_name = require('dev-chronicles.utils.strings').get_project_name
+  local utils = require('dev-chronicles.utils')
+  local string_utils = require('dev-chronicles.utils.strings')
 
-  if not cwd:match('/$') then
-    cwd = cwd .. '/'
-  end
+  cwd = vim.fs.normalize(cwd) .. '/'
 
   -- Because both end with a slash, if it matches, it cannot be a different dir with
   -- the same prefix
@@ -40,9 +38,11 @@ function M.is_project(
 
   for _, dir in ipairs(tracked_dirs) do
     if cwd == dir then
-      local project_name = get_project_name(cwd)
-      return (differentiate_projects_by_folder_not_path and project_name or unexpand(cwd)),
-        project_name
+      local project_name = string_utils.get_project_name(cwd)
+      local project_id = differentiate_projects_by_folder_not_path and project_name
+        or utils.unexpand_path(cwd)
+
+      return project_id, project_name
     end
   end
 
@@ -60,9 +60,11 @@ function M.is_project(
           return
         end
 
-        local project_id = parent_dir .. first_dir .. '/'
-        return (differentiate_projects_by_folder_not_path and first_dir or unexpand(project_id)),
-          first_dir
+        local full_project_path = parent_dir .. first_dir .. '/'
+        local project_id = differentiate_projects_by_folder_not_path and first_dir
+          or utils.unexpand_path(full_project_path)
+
+        return project_id, first_dir
       end
     end
   end
