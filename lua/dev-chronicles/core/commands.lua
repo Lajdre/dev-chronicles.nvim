@@ -140,18 +140,26 @@ function M._setup_the_command(opts)
           'all',
           'days',
           'months',
+          'years',
+          'all',
+          'timeline',
+          'list',
+          'time',
+          'pause',
           'info',
           'abort',
-          'time',
           'config',
           'clean',
           'logs',
           'validate',
-          'pause',
+          'today',
+          'week',
         }
       elseif n_splits == 3 then
-        if split[2] == 'days' then
-          return { '29' }
+        if split[2] == 'timeline' or split[2] == 'tl' then
+          return { 'days', 'months', 'years', 'all' }
+        elseif split[2] == 'days' then
+          return { opts.dashboard.dashboard_days.n_by_default }
         elseif split[2] == 'months' then
           return { 'MM.YYYY' }
         elseif split[2] == 'years' then
