@@ -477,6 +477,40 @@ function M.set_bars_lines_hl(
   return len_lines
 end
 
+---@param timeline_data chronicles.Timeline.Data
+---@param bar_width integer
+---@param bar_left_margin_cols integer[]
+---@param segment_label_base_opts chronicles.Options.Timeline.Section.SegmentLabelBase
+---@param get_label fun(segment_data: chronicles.Timeline.SegmentData): string?
+---@param place_label fun(label: string?, col: integer, bar_width: integer, hl: string)
+function M._fill_label_row(
+  timeline_data,
+  bar_width,
+  bar_left_margin_cols,
+  segment_label_base_opts,
+  get_label,
+  place_label
+)
+  local opts = segment_label_base_opts
+  local project_id_to_highlight = timeline_data.project_id_to_highlight
+  local initial_highlight = opts.color and colors.get_or_create_hex_highlight(opts.color)
+    or DefaultColors.DevChroniclesAccent
+  local highlight = initial_highlight
+
+  for index, segment_data in ipairs(timeline_data.segments) do
+    if not opts.hide_when_empty or segment_data.total_segment_time > 0 then
+      if opts.color_like_top_segment_project then
+        local project_shares = segment_data.project_shares
+        local len_ps = #project_shares
+        highlight = len_ps > 0 and project_id_to_highlight[project_shares[len_ps].project_id]
+          or initial_highlight
+      end
+
+      place_label(get_label(segment_data), bar_left_margin_cols[index], bar_width, highlight)
+    end
+  end
+end
+
 ---Adds 1 entry to the lines table.
 ---@param lines string[]
 ---@param highlights chronicles.Highlight[]
@@ -498,42 +532,24 @@ function M.set_numeric_labels_lines_hl(
   len_lines
 )
   len_lines = (len_lines or #lines) + 1
-  local labels_row_arr = vim.split(string.rep(' ', win_width), '')
-  local project_id_to_highlight = timeline_data.project_id_to_highlight
-  local hide_when_empty = numeric_label_opts.hide_when_empty
-  local color_like_top_segment_project = numeric_label_opts.color_like_top_segment_project
-  local initial_highlight = numeric_label_opts.color
-      and colors.get_or_create_hex_highlight(numeric_label_opts.color)
-    or DefaultColors.DevChroniclesAccent
-  local highlight = initial_highlight
+  local row_arr = vim.split(string.rep(' ', win_width), '')
 
-  for index, segment_data in ipairs(timeline_data.segments) do
-    if not hide_when_empty or segment_data.total_segment_time > 0 then
-      if color_like_top_segment_project then
-        local project_shares = segment_data.project_shares
-        local len_project_shares = #project_shares
-        if len_project_shares > 0 then
-          highlight = project_id_to_highlight[project_shares[len_project_shares].project_id]
-        else
-          highlight = initial_highlight
-        end
-      end
-
-      local date_label = segment_data.day or segment_data.month or segment_data.year
-      string_utils.place_label_simple(
-        labels_row_arr,
-        date_label,
-        bar_left_margin_cols[index],
-        bar_width,
-        highlights,
-        len_lines,
-        highlight
-      )
-    end
+  local place_label = function(label, col, avail_width, hl)
+    string_utils.place_label_simple(row_arr, label, col, avail_width, highlights, len_lines, hl)
   end
 
-  lines[len_lines] = table.concat(labels_row_arr)
+  M._fill_label_row(
+    timeline_data,
+    bar_width,
+    bar_left_margin_cols,
+    numeric_label_opts,
+    function(seg)
+      return seg.day or seg.month or seg.year
+    end,
+    place_label
+  )
 
+  lines[len_lines] = table.concat(row_arr)
   return len_lines
 end
 
@@ -558,35 +574,15 @@ function M.set_abbr_labels_lines_hl(
   len_lines
 )
   len_lines = (len_lines or #lines) + 1
-  local abbr_row_arr = vim.split(string.rep(' ', win_width), '')
-  local project_id_to_highlight = timeline_data.project_id_to_highlight
-  local hide_when_empty = abbr_label_opts.hide_when_empty
-  local color_like_top_segment_project = abbr_label_opts.color_like_top_segment_project
-  local initial_highlight = abbr_label_opts.color
-      and colors.get_or_create_hex_highlight(abbr_label_opts.color)
-    or DefaultColors.DevChroniclesAccent
-  local highlight = initial_highlight
+  local row_arr = vim.split(string.rep(' ', win_width), '')
 
-  local place_label = string_utils.closure_place_label(abbr_row_arr, highlights, len_lines)
+  local place_label = string_utils.closure_place_label(row_arr, highlights, len_lines)
 
-  for index, segment_data in ipairs(timeline_data.segments) do
-    if not hide_when_empty or segment_data.total_segment_time > 0 then
-      if color_like_top_segment_project then
-        local project_shares = segment_data.project_shares
-        local len_project_shares = #project_shares
-        if len_project_shares > 0 then
-          highlight = project_id_to_highlight[project_shares[len_project_shares].project_id]
-        else
-          highlight = initial_highlight
-        end
-      end
+  M._fill_label_row(timeline_data, bar_width, bar_left_margin_cols, abbr_label_opts, function(seg)
+    return seg.date_abbr
+  end, place_label)
 
-      place_label(segment_data.date_abbr, bar_left_margin_cols[index], bar_width, highlight)
-    end
-  end
-
-  lines[len_lines] = table.concat(abbr_row_arr)
-
+  lines[len_lines] = table.concat(row_arr)
   return len_lines
 end
 
