@@ -199,7 +199,7 @@ function M.get_dashboard_data_days(
   local DAY_SEC = 86400
   local start_str = time_days.get_previous_day(canonical_today_str, start_offset)
   local end_str = time_days.get_previous_day(canonical_today_str, end_offset)
-  -- Adding half a day handles DST issues given any reasonable time range. Not pretty, but performant
+  -- Adding half a day handles DST issues given any reasonable time range. Not pretty, but no overhead.
   local unnormalized_start_ts = time_days.convert_day_str_to_timestamp(start_str)
   local start_ts = unnormalized_start_ts + 43200
   local end_ts = time_days.convert_day_str_to_timestamp(end_str, true)

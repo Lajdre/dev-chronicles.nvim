@@ -1,4 +1,4 @@
-local dashboard_logic = require('dev-chronicles.dashboard.logic')
+local dashboard_logic = require('dev-chronicles.panels.dashboard.logic')
 
 describe('panels.dashboard.logic', function()
   describe('construct_bar_representation', function()

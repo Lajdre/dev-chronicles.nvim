@@ -137,7 +137,6 @@ function M._setup_the_command(opts)
       local n_splits = #split
       if n_splits == 2 then
         return {
-          'all',
           'days',
           'months',
           'years',
